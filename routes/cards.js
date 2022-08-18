@@ -8,31 +8,42 @@ const Card = require('../models/Card');
 router.get('/', (req, res, next) => {
     Card.find((err, cards) => {
         if (err) return next({message: 'Error fetching cards.', detailed_message: err.message});
-        res.json({status: 'success', message: 'Cards retrieved successfully', count: cards.length, data: cards});
-    }).sort({createdAt: -1});
+        res.json({
+            status: 'success',
+            message: 'Cards retrieved successfully',
+            count: cards.length,
+            data: cards
+        });
+    }).sort({createdAt: -1}).select('-__v');
 });
 
-router.post('/', (req, res, next) => {
-    const {name, icon} = req.body;
+// router.get('/detailed_list', (req, res, next) => {
+//     Card.find((err, cards) => {
+//         if (err) return next({message: 'Error fetching cards.', detailed_message: err.message});
+//         res.json({
+//             status: 'success',
+//             message: 'Cards retrieved successfully',
+//             count: cards.length,
+//             data: cards
+//         });
+//     }).sort({createdAt: -1});
+// }).select('-__v');
 
-    const card = new Card({
-        name: name,
-        icon: icon
-    });
+router.post('/', (req, res, next) => {
+    const {name, user_id, card_type_id, url_path} = req.body;
+
+    const card = new Card({name, user_id, card_type_id, url_path});
     card.save((err, card) => {
-        if (err) {
-            return res.status(500).send({status: 'error', message: err.message});
-        }
+        if (err) return next({message: 'Error saving card.', detailed_message: err.message});
         return res.status(200).send({status: 'success', message: 'Card saved successfully', data: card});
     });
 });
 
 router.get('/:id', (req, res, next) => {
     Card.findById(req.params.id, (err, card) => {
-        // if (err) return res.json({status: 'error', message: 'Card not found.', detailed_message: err});
         if (err) return next({message: 'Card not found.', detailed_message: err.message});
         res.json({status: 'success', message: 'Card retrieved successfully', data: card});
-    });
+    }).select('-__v');
 });
 
 router.put('/:id', (req, res, next) => {

@@ -7,6 +7,8 @@ require('./helper/db')();
 
 const indexRouter = require('./routes/index');
 const cardsRouter = require('./routes/cards');
+const cardTypesRouter = require('./routes/card_types');
+const usersRouter = require('./routes/users');
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api/cards', cardsRouter);
+app.use('/api/card_types', cardTypesRouter);
+app.use('/api/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
