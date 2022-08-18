@@ -44,6 +44,7 @@ router.get('/detailed', (req, res, next) => {
                 //     updatedAt: '$updatedAt'
                 // },
                 _id: '$_id',
+                username: {$first: '$username'},
                 name: {$first: '$name'},
                 surname: {$first: '$surname'},
                 email: {$first: '$email'},
@@ -133,6 +134,7 @@ router.get('/detailed/:id', (req, res, next) => {
         {
             $group: {
                 _id: '$_id',
+                username: {$first: '$username'},
                 name: {$first: '$name'},
                 surname: {$first: '$surname'},
                 email: {$first: '$email'},
