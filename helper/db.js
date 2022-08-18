@@ -16,4 +16,5 @@ module.exports = () => {
     }).on('connected', () => {
         console.log('MongoDB connected');
     });
+    // mongoose.Promise = global.Promise;
 }
