@@ -17,17 +17,45 @@ router.get('/', (req, res, next) => {
     }).sort({createdAt: -1}).select('-__v');
 });
 
-// router.get('/detailed_list', (req, res, next) => {
-//     Card.find((err, cards) => {
-//         if (err) return next({message: 'Error fetching cards.', detailed_message: err.message});
-//         res.json({
-//             status: 'success',
-//             message: 'Cards retrieved successfully',
-//             count: cards.length,
-//             data: cards
-//         });
-//     }).sort({createdAt: -1});
-// }).select('-__v');
+router.get('/detailed', (req, res, next) => {
+    Card.aggregate([
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'user_id',
+                foreignField: '_id',
+                as: 'users'
+            }
+        },
+        {
+            $unwind: {
+                path: '$users',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $group: {
+                _id: '$_id',
+                name: {$first: '$name'},
+                user_id: {$first: '$user_id'},
+                card_type_id: {$first: '$card_type_id'},
+                url_path: {$first: '$url_path'},
+                active: {$first: '$active'},
+                createdAt: {$first: '$createdAt'},
+                updatedAt: {$first: '$updatedAt'},
+                users: {$push: '$users'}
+            }
+        },
+    ], (err, users) => {
+        if (err) return next({message: 'Error fetching users.', detailed_message: err.message});
+        res.json({
+            status: 'success',
+            message: 'Users retrieved successfully',
+            count: users.length,
+            data: users
+        });
+    });
+});
 
 router.post('/', (req, res, next) => {
     const {name, user_id, card_type_id, url_path} = req.body;
