@@ -25,7 +25,7 @@ router.post('/register', (req, res, next) => {
         });
         user.save((err, user) => {
             if (err) return next({message: 'Error saving user.', detailed_message: err.message});
-            res.json({
+            return res.json({
                 status: 'success',
                 message: 'User saved successfully',
                 data: user
@@ -54,7 +54,7 @@ router.post('/login', (req, res, next) => {
                 expiresIn: 720  // 12 hours
             });
 
-            res.json({
+            return res.json({
                 status: 'success',
                 message: 'User logged in successfully',
                 data: user,

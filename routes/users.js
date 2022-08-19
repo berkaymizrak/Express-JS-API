@@ -9,7 +9,7 @@ const User = require('../models/User');
 router.get('/', (req, res, next) => {
     User.find((err, users) => {
         if (err) return next({message: 'Error fetching users.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Users retrieved successfully',
             count: users.length,
@@ -73,7 +73,7 @@ router.get('/detailed', (req, res, next) => {
         // }
     ], (err, users) => {
         if (err) return next({message: 'Error fetching users.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Users retrieved successfully',
             count: users.length,
@@ -94,9 +94,8 @@ router.get('/detailed', (req, res, next) => {
 
 router.get('/:id', (req, res, next) => {
     User.findById(req.params.id, (err, user) => {
-        // if (err) return res.json({status: 'error', message: 'User not found.', detailed_message: err});
         if (err) return next({message: 'User not found.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'User retrieved successfully',
             data: user
@@ -147,7 +146,7 @@ router.get('/detailed/:id', (req, res, next) => {
         },
     ], (err, users) => {
         if (err) return next({message: 'Error fetching users.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Users retrieved successfully',
             count: users.length,
@@ -159,7 +158,7 @@ router.get('/detailed/:id', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
     User.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, user) => {
         if (err) return next({message: 'Error updating user.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'User updated successfully',
             data: user
@@ -170,7 +169,7 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
     User.findByIdAndRemove(req.params.id, (err, user) => {
         if (err) return next({message: 'Error deleting user.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'User deleted successfully',
             data: user

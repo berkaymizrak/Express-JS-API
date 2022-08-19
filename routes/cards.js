@@ -8,7 +8,7 @@ const Card = require('../models/Card');
 router.get('/', (req, res, next) => {
     Card.find((err, cards) => {
         if (err) return next({message: 'Error fetching cards.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Cards retrieved successfully',
             count: cards.length,
@@ -48,7 +48,7 @@ router.get('/detailed', (req, res, next) => {
         },
     ], (err, cards) => {
         if (err) return next({message: 'Error fetching cards.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Cards retrieved successfully',
             count: cards.length,
@@ -63,7 +63,7 @@ router.post('/', (req, res, next) => {
     const card = new Card({name, user_id, card_type_id, url_path});
     card.save((err, card) => {
         if (err) return next({message: 'Error saving card.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Card saved successfully',
             data: card
@@ -74,7 +74,7 @@ router.post('/', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
     Card.findById(req.params.id, (err, card) => {
         if (err) return next({message: 'Card not found.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Card retrieved successfully',
             data: card
@@ -85,7 +85,7 @@ router.get('/:id', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
     Card.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, card) => {
         if (err) return next({message: 'Error updating card.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Card updated successfully',
             data: card
@@ -96,7 +96,7 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
     Card.findByIdAndRemove(req.params.id, (err, card) => {
         if (err) return next({message: 'Error deleting card.', detailed_message: err.message});
-        res.json({
+        return res.json({
             status: 'success',
             message: 'Card deleted successfully',
             data: card
