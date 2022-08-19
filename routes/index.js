@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Models
-const User = require('../models/User');
+const User = require('../Structures/User/models/User');
 
 /* GET home page. */
 router.get('/', (req, res, next) => {

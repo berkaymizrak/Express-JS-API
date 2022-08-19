@@ -8,9 +8,9 @@ const logger = require('morgan');
 require('./helper/db')();
 
 const indexRouter = require('./routes/index');
-const cardsRouter = require('./routes/cards');
-const cardTypesRouter = require('./routes/card_types');
-const usersRouter = require('./routes/users');
+const cardsRouter = require('./Structures/Card/routes/cards');
+const cardTypesRouter = require('./Structures/CardTypes/routes/card_types');
+const usersRouter = require('./Structures/User/routes/users');
 
 const app = express();
 
