@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
+const config = require('../config');
+
+const { db: { host, name, username, password } } = config;
+const connectionString = `mongodb+srv://${username}:${password}@${host}/${name}`;
 
 module.exports = () => {
-    // mongoose.connect('mongodb://USERNAME:PASSWORD@berkaymizrak.com:2222/nfc_card');
-    mongoose.connect('mongodb://localhost/nfc_card');
+    mongoose.connect(connectionString);
+
     mongoose.connection.on('open', () => {
         console.log('MongoDB connection opened');
     }).on('error', (err) => {

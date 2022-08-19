@@ -18,6 +18,9 @@ const app = express();
 const config = require('./config');
 app.set('JWT_SECRET', config.JWT_SECRET)
 
+// Middleware
+const verifyToken = require('./middleware/verify-token');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -29,6 +32,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/api', verifyToken);
 app.use('/api/cards', cardsRouter);
 app.use('/api/card_types', cardTypesRouter);
 app.use('/api/users', usersRouter);

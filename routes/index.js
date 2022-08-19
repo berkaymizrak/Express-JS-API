@@ -11,7 +11,7 @@ router.get('/', (req, res, next) => {
     res.render('index', {title: 'Express'});
 });
 
-router.post('/api/register', (req, res, next) => {
+router.post('/register', (req, res, next) => {
     const {username, name, surname, email, password} = req.body;
 
     bcrypt.hash(password, 10, (err, hash) => {
@@ -34,7 +34,7 @@ router.post('/api/register', (req, res, next) => {
     });
 });
 
-router.post('/api/login', (req, res, next) => {
+router.post('/login', (req, res, next) => {
     const {username, password} = req.body;
     User.findOne({username}, (err, user) => {
         if (err) return next({message: 'Error fetching user.', detailed_message: err.message});
