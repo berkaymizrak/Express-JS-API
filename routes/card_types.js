@@ -23,7 +23,11 @@ router.post('/', (req, res, next) => {
     const card_type = new CardType({name, user_id, card_type_id, base_url});
     card_type.save((err, card_type) => {
         if (err) return next({message: 'Error saving card_type.', detailed_message: err.message});
-        return res.status(200).send({status: 'success', message: 'CardType saved successfully', data: card_type});
+        return res.status(200).send({
+            status: 'success',
+            message: 'CardType saved successfully',
+            data: card_type
+        });
     });
 });
 
@@ -31,21 +35,33 @@ router.get('/:id', (req, res, next) => {
     CardType.findById(req.params.id, (err, card_type) => {
         // if (err) return res.json({status: 'error', message: 'CardType not found.', detailed_message: err});
         if (err) return next({message: 'CardType not found.', detailed_message: err.message});
-        res.json({status: 'success', message: 'CardType retrieved successfully', data: card_type});
+        res.json({
+            status: 'success',
+            message: 'CardType retrieved successfully',
+            data: card_type
+        });
     }).select('-__v');
 });
 
 router.put('/:id', (req, res, next) => {
     CardType.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, card_type) => {
         if (err) return next({message: 'Error updating card_type.', detailed_message: err.message});
-        res.json({status: 'success', message: 'CardType updated successfully', data: card_type});
+        res.json({
+            status: 'success',
+            message: 'CardType updated successfully',
+            data: card_type
+        });
     }).select('-__v');
 });
 
 router.delete('/:id', (req, res, next) => {
     CardType.findByIdAndRemove(req.params.id, (err, card_type) => {
         if (err) return next({message: 'Error deleting card_type.', detailed_message: err.message});
-        res.json({status: 'success', message: 'CardType deleted successfully', data: card_type});
+        res.json({
+            status: 'success',
+            message: 'CardType deleted successfully',
+            data: card_type
+        });
     }).select('-__v');
 });
 

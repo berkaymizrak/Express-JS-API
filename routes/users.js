@@ -15,7 +15,7 @@ router.get('/', (req, res, next) => {
             count: users.length,
             data: users
         });
-    }).sort({createdAt: -1});
+    }).sort({createdAt: -1}).select('-__v');
 });
 
 router.get('/detailed', (req, res, next) => {
@@ -92,21 +92,15 @@ router.get('/detailed', (req, res, next) => {
     // }).sort({createdAt: -1}).select('-__v');
 });
 
-router.post('/', (req, res, next) => {
-    const {name, surname, email, password} = req.body;
-
-    const user = new User({name, surname, email, password});
-    user.save((err, user) => {
-        if (err) return next({message: 'Error saving user.', detailed_message: err.message});
-        return res.status(200).send({status: 'success', message: 'User saved successfully', data: user});
-    });
-});
-
 router.get('/:id', (req, res, next) => {
     User.findById(req.params.id, (err, user) => {
         // if (err) return res.json({status: 'error', message: 'User not found.', detailed_message: err});
         if (err) return next({message: 'User not found.', detailed_message: err.message});
-        res.json({status: 'success', message: 'User retrieved successfully', data: user});
+        res.json({
+            status: 'success',
+            message: 'User retrieved successfully',
+            data: user
+        });
     }).select('-__v');
 });
 
@@ -165,14 +159,22 @@ router.get('/detailed/:id', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
     User.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, user) => {
         if (err) return next({message: 'Error updating user.', detailed_message: err.message});
-        res.json({status: 'success', message: 'User updated successfully', data: user});
+        res.json({
+            status: 'success',
+            message: 'User updated successfully',
+            data: user
+        });
     }).select('-__v');
 });
 
 router.delete('/:id', (req, res, next) => {
     User.findByIdAndRemove(req.params.id, (err, user) => {
         if (err) return next({message: 'Error deleting user.', detailed_message: err.message});
-        res.json({status: 'success', message: 'User deleted successfully', data: user});
+        res.json({
+            status: 'success',
+            message: 'User deleted successfully',
+            data: user
+        });
     }).select('-__v');
 });
 

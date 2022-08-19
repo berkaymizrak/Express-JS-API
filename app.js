@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+
+// db connection
 require('./helper/db')();
 
 const indexRouter = require('./routes/index');
@@ -11,6 +13,10 @@ const cardTypesRouter = require('./routes/card_types');
 const usersRouter = require('./routes/users');
 
 const app = express();
+
+// config
+const config = require('./config');
+app.set('JWT_SECRET', config.JWT_SECRET)
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
