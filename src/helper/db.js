@@ -1,13 +1,8 @@
-const mongoose = require('mongoose');
-const config = require('../config');
+import mongoose from 'mongoose';
+import { mongoUri } from '../config.js';
 
-const {
-    db: { host, name, username, password },
-} = config;
-const connectionString = `mongodb+srv://${username}:${password}@${host}/${name}`;
-
-module.exports = () => {
-    mongoose.connect(connectionString);
+const dbConnection = () => {
+    mongoose.connect(mongoUri, { useNewUrlParser: true });
 
     mongoose.connection
         .on('open', () => {
@@ -28,5 +23,6 @@ module.exports = () => {
         .on('connected', () => {
             console.log('MongoDB connected');
         });
-    // mongoose.Promise = global.Promise;
 };
+
+export default dbConnection;

@@ -1,11 +1,18 @@
 {
   "name": "nfc-card",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "NFC Card Application",
+  "main": "src/app.js",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "if-env process.env.NODE_ENV=production && npm run start:prod || npm run start:dev",
-    "start:dev": "nodemon ./bin/www",
-    "start:prod": "node ./bin/www"
+    "start": "yarn start:dev",
+    "start:dev": "nodemon",
+
+    "start:prod": "node ./build/index.js",
+    "build:prod": "babel -d ./build ./server",
+    "prebuild:prod": "rm -rf build/*",
+    "prestart:prod": "yarn build:prod"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -14,13 +21,13 @@
     "dotenv": "^16.0.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
-    "if-env": "^1.0.4",
-    "jade": "~1.11.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.5.2",
     "morgan": "~1.9.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.13",
+    "@babel/node": "^7.18.10",
     "eslint": "^8.22.0",
     "prettier": "^2.7.1"
   }

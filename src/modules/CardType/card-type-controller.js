@@ -1,0 +1,59 @@
+// Models
+import Card from '../Card/card-model.js';
+import User from '../User/user-model.js';
+import CardType from './card-type-model.js';
+
+const listCardTypes = async (req, res) => {
+    await CardType.find()
+        .sort({ createdAt: -1 })
+        .select('-__v')
+        .then(cardTypes => {
+            res.status(200).send({
+                success: true,
+                message: 'Card Types retrieved successfully',
+                count: cardTypes.length,
+                card_types: cardTypes,
+            });
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: 'Error fetching card types',
+                detailed_message: err.message,
+            });
+        });
+};
+
+const getCardType = async (req, res) => {
+    const { id } = req.params;
+    await CardType.findById(id)
+        .then(card_type => {
+            if (!card_type) {
+                res.status(200).send({
+                    success: true,
+                    message: 'Card type not found',
+                    card_type: null,
+                });
+            } else {
+                res.status(200).send({
+                    success: true,
+                    message: 'Card type retrieved successfully',
+                    card_type: {
+                        _id: card_type._id,
+                        name: card_type.name,
+                        email: card_type.email,
+                        timestamp: card_type.timestamp,
+                    },
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: 'Error fetching card type',
+                detailed_message: err.message,
+            });
+        });
+};
+
+export { listCardTypes, getCardType };

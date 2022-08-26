@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const CardSchema = new Schema({
@@ -11,4 +11,5 @@ const CardSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Card', CardSchema);
+const Card = mongoose.model('Card', CardSchema);
+export default Card;

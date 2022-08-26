@@ -1,4 +1,5 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config.js';
 
 module.exports = (req, res, next) => {
     // Express headers are auto converted to lowercase
@@ -17,7 +18,7 @@ module.exports = (req, res, next) => {
     }
 
     if (useToken) {
-        jwt.verify(useToken, req.app.get('JWT_SECRET'), (err, decoded) => {
+        jwt.verify(useToken, JWT_SECRET, (err, decoded) => {
             if (err) {
                 return res.json({
                     status: 'error',
