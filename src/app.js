@@ -7,6 +7,8 @@ import logger from 'morgan';
 import dbConnection from './helper/db.js';
 dbConnection();
 
+// Middleware
+import verifyToken from './middlewares/verify-token.js';
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 
 const app = express();
@@ -14,16 +16,13 @@ const app = express();
 // config
 import { env, port } from './config.js';
 
-// Middleware
-// import verifyToken from './middlewares/verify-token';
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-privateRoutes.forEach(route => app.use('/api/v1', route));
 publicRoutes.forEach(route => app.use('/api/v1', route));
+privateRoutes.forEach(route => app.use('/api/v1', verifyToken, route));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

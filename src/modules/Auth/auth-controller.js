@@ -79,7 +79,7 @@ const loginUser = async (req, res, next) => {
     User.findOne({ username }).then(user => {
         if (!user)
             return next({
-                status: 403,
+                status: 401,
                 success: false,
                 message: 'Incorrect Password or Username',
             });
@@ -93,7 +93,7 @@ const loginUser = async (req, res, next) => {
                 });
             if (!result)
                 return next({
-                    status: 403,
+                    status: 401,
                     success: false,
                     message: 'Incorrect Password or Username',
                 });
