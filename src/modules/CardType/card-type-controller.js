@@ -56,4 +56,36 @@ const getCardType = async (req, res) => {
         });
 };
 
-export { listCardTypes, getCardType };
+const deleteCardType = async (req, res) => {
+    const { id } = req.params;
+    await CardType.findOneAndDelete(id)
+        .then(card_type => {
+            if (!card_type) {
+                res.status(200).send({
+                    success: true,
+                    message: 'Card type not found',
+                    card_type: null,
+                });
+            } else {
+                res.status(200).send({
+                    success: true,
+                    message: 'Card type deleted successfully',
+                    card_type: {
+                        _id: card_type._id,
+                        name: card_type.name,
+                        email: card_type.email,
+                        timestamp: card_type.timestamp,
+                    },
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: 'Error deleting card type',
+                detailed_message: err.message,
+            });
+        });
+};
+
+export { listCardTypes, getCardType, deleteCardType };

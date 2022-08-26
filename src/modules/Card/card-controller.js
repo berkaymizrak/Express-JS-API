@@ -1,6 +1,7 @@
 // Models
 import Card from './card-model.js';
 import CardType from '../CardType/card-type-model.js';
+import User from '../User/user-model.js';
 
 const listCards = async (req, res) => {
     await Card.find()
@@ -55,4 +56,36 @@ const getCard = async (req, res) => {
         });
 };
 
-export { listCards, getCard };
+const deleteCard = async (req, res) => {
+    const { id } = req.params;
+    await Card.findOneAndDelete(id)
+        .then(card => {
+            if (!card) {
+                res.status(200).send({
+                    success: true,
+                    message: 'Card not found',
+                    card: null,
+                });
+            } else {
+                res.status(200).send({
+                    success: true,
+                    message: 'Card deleted successfully',
+                    card: {
+                        _id: card._id,
+                        name: card.name,
+                        email: card.email,
+                        timestamp: card.timestamp,
+                    },
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                success: false,
+                message: 'Error deleting card',
+                detailed_message: err.message,
+            });
+        });
+};
+
+export { listCards, getCard, deleteCard };
