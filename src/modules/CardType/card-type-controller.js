@@ -3,20 +3,21 @@ import Card from '../Card/card-model.js';
 import User from '../User/user-model.js';
 import CardType from './card-type-model.js';
 
-const listCardTypes = async (req, res) => {
+const listCardTypes = async (req, res, next) => {
     await CardType.find()
         .sort({ createdAt: -1 })
         .select('-__v')
         .then(cardTypes => {
-            res.status(200).send({
+            return res.status(200).send({
                 success: true,
                 message: 'Card Types retrieved successfully',
                 count: cardTypes.length,
-                card_types: cardTypes,
+                data: cardTypes,
             });
         })
         .catch(err => {
-            res.status(500).send({
+            return next({
+                status: 500,
                 success: false,
                 message: 'Error fetching card types',
                 detailed_message: err.message,
@@ -24,21 +25,21 @@ const listCardTypes = async (req, res) => {
         });
 };
 
-const getCardType = async (req, res) => {
+const getCardType = async (req, res, next) => {
     const { id } = req.params;
     await CardType.findById(id)
         .then(card_type => {
             if (!card_type) {
-                res.status(200).send({
-                    success: true,
+                return res.status(200).send({
+                    success: false,
                     message: 'Card type not found',
-                    card_type: null,
+                    data: null,
                 });
             } else {
-                res.status(200).send({
+                return res.status(200).send({
                     success: true,
                     message: 'Card type retrieved successfully',
-                    card_type: {
+                    data: {
                         _id: card_type._id,
                         name: card_type.name,
                         email: card_type.email,
@@ -48,7 +49,8 @@ const getCardType = async (req, res) => {
             }
         })
         .catch(err => {
-            res.status(500).send({
+            return next({
+                status: 500,
                 success: false,
                 message: 'Error fetching card type',
                 detailed_message: err.message,
@@ -56,21 +58,21 @@ const getCardType = async (req, res) => {
         });
 };
 
-const deleteCardType = async (req, res) => {
+const deleteCardType = async (req, res, next) => {
     const { id } = req.params;
     await CardType.findOneAndDelete(id)
         .then(card_type => {
             if (!card_type) {
-                res.status(200).send({
-                    success: true,
+                return res.status(200).send({
+                    success: false,
                     message: 'Card type not found',
-                    card_type: null,
+                    data: null,
                 });
             } else {
-                res.status(200).send({
+                return res.status(200).send({
                     success: true,
                     message: 'Card type deleted successfully',
-                    card_type: {
+                    data: {
                         _id: card_type._id,
                         name: card_type.name,
                         email: card_type.email,
@@ -80,7 +82,8 @@ const deleteCardType = async (req, res) => {
             }
         })
         .catch(err => {
-            res.status(500).send({
+            return next({
+                status: 500,
                 success: false,
                 message: 'Error deleting card type',
                 detailed_message: err.message,

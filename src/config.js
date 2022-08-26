@@ -6,6 +6,8 @@ const mongoUri = `${process.env.DB_HOST}://${process.env.DB_USERNAME}:${process.
 
 const port = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_ALGORITHM = process.env.JWT_ALGORITHM;
+const JWT_REFRESH_ALGORITHM = process.env.JWT_REFRESH_ALGORITHM;
 
 // You may use this as a boolean value for different situations
 const env = {
@@ -15,4 +17,4 @@ const env = {
     production: process.env.NODE_ENV === 'production',
 };
 
-export { mongoUri, port, JWT_SECRET, env };
+export { mongoUri, port, JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, env };

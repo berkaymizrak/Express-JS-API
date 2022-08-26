@@ -38,8 +38,7 @@ app.use((err, req, res, next) => {
 
     // render the error page
     res.status(err.status || 500);
-    // res.render('error');
-    return res.json({ status: 'error', message: err.message, detailed_message: err.detailed_message });
+    return res.json({ success: err.success, message: err.message, detailed_message: err.detailed_message });
 });
 
 app.listen(port, () => {

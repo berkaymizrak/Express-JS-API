@@ -1,20 +1,21 @@
 // Models
 import User from './user-model.js';
 
-const listUsers = async (req, res) => {
+const listUsers = async (req, res, next) => {
     await User.find()
         .sort({ createdAt: -1 })
         .select('-__v')
         .then(users => {
-            res.status(200).send({
+            return res.status(200).send({
                 success: true,
                 message: 'Users retrieved successfully',
                 count: users.length,
-                users: users,
+                data: users,
             });
         })
         .catch(err => {
-            res.status(500).send({
+            return next({
+                status: 500,
                 success: false,
                 message: 'Error fetching users',
                 detailed_message: err.message,
@@ -22,31 +23,31 @@ const listUsers = async (req, res) => {
         });
 };
 
-const getUser = async (req, res) => {
+const getUser = async (req, res, next) => {
     const { id } = req.params;
     await User.findById(id)
         .then(user => {
             if (!user) {
-                res.status(200).send({
-                    success: true,
+                return res.status(200).send({
+                    success: false,
                     message: 'User not found',
-                    user: null,
+                    data: null,
                 });
             } else {
-                res.status(200).send({
+                return res.status(200).send({
                     success: true,
                     message: 'User retrieved successfully',
-                    user: {
+                    data: {
                         _id: user._id,
                         name: user.name,
                         email: user.email,
-                        timestamp: user.timestamp,
                     },
                 });
             }
         })
         .catch(err => {
-            res.status(500).send({
+            return next({
+                status: 500,
                 success: false,
                 message: 'Error fetching user',
                 detailed_message: err.message,
@@ -54,31 +55,31 @@ const getUser = async (req, res) => {
         });
 };
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
     const { id } = req.params;
     await User.findOneAndDelete(id)
         .then(user => {
             if (!user) {
-                res.status(200).send({
-                    success: true,
+                return res.status(200).send({
+                    success: false,
                     message: 'User not found',
-                    user: null,
+                    data: null,
                 });
             } else {
-                res.status(200).send({
+                return res.status(200).send({
                     success: true,
                     message: 'User deleted successfully',
-                    user: {
+                    data: {
                         _id: user._id,
                         name: user.name,
                         email: user.email,
-                        timestamp: user.timestamp,
                     },
                 });
             }
         })
         .catch(err => {
-            res.status(500).send({
+            return next({
+                status: 500,
                 success: false,
                 message: 'Error deleting user',
                 detailed_message: err.message,
