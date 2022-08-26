@@ -25,6 +25,32 @@ const listCardTypes = async (req, res, next) => {
         });
 };
 
+const createCardType = async (req, res, next) => {
+    const { name, icon, base_url } = req.body;
+    const card_type = new CardType({
+        name,
+        icon,
+        base_url,
+    });
+    await card_type
+        .save()
+        .then(card_type => {
+            return res.status(200).send({
+                success: true,
+                message: 'Card Type created successfully',
+                data: card_type,
+            });
+        })
+        .catch(err => {
+            return next({
+                status: 500,
+                success: false,
+                message: 'Error creating card type',
+                detailed_message: err.message,
+            });
+        });
+};
+
 const getCardType = async (req, res, next) => {
     const { id } = req.params;
     await CardType.findById(id)
@@ -91,4 +117,4 @@ const deleteCardType = async (req, res, next) => {
         });
 };
 
-export { listCardTypes, getCardType, deleteCardType };
+export { listCardTypes, createCardType, getCardType, deleteCardType };

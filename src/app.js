@@ -11,10 +11,10 @@ dbConnection();
 import verifyToken from './middlewares/verify-token.js';
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 
-const app = express();
-
 // config
 import { env, port } from './config.js';
+
+const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());

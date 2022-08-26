@@ -25,6 +25,33 @@ const listCards = async (req, res, next) => {
         });
 };
 
+const createCard = async (req, res, next) => {
+    const { name, user_id, card_type_id, url_path } = req.body;
+    const card = new Card({
+        name,
+        user_id,
+        card_type_id,
+        url_path,
+    });
+    await card
+        .save()
+        .then(card => {
+            return res.status(200).send({
+                success: true,
+                message: 'Card created successfully',
+                data: card,
+            });
+        })
+        .catch(err => {
+            return next({
+                status: 500,
+                success: false,
+                message: 'Error creating card',
+                detailed_message: err.message,
+            });
+        });
+};
+
 const getCard = async (req, res, next) => {
     const { id } = req.params;
     await Card.findById(id)
@@ -91,4 +118,4 @@ const deleteCard = async (req, res, next) => {
         });
 };
 
-export { listCards, getCard, deleteCard };
+export { listCards, createCard, getCard, deleteCard };
