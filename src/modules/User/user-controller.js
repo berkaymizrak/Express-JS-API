@@ -23,6 +23,45 @@ const listUsers = async (req, res, next) => {
         });
 };
 
+const listDetailedUsers = async (req, res, next) => {
+    await User.aggregate([
+        {
+            $lookup: {
+                from: 'cards',
+                localField: '_id',
+                foreignField: 'user_id',
+                as: 'cards',
+            },
+        },
+        { $addFields: { cardCount: { $size: '$cards' } } },
+        {
+            $project: {
+                // Hide/show selected columns from the response
+                __v: 0,
+                password: 0,
+                'cards.__v': 0,
+            },
+        },
+    ])
+        .sort({ createdAt: -1 })
+        .then(users => {
+            return res.status(200).send({
+                success: true,
+                message: 'Users retrieved successfully',
+                count: users.length,
+                data: users,
+            });
+        })
+        .catch(err => {
+            return next({
+                status: 500,
+                success: false,
+                message: 'Error fetching users',
+                detailed_message: err.message,
+            });
+        });
+};
+
 const getUser = async (req, res, next) => {
     const { id } = req.params;
     await User.findById(id)
@@ -87,4 +126,4 @@ const deleteUser = async (req, res, next) => {
         });
 };
 
-export { getUser, listUsers, deleteUser };
+export { listUsers, listDetailedUsers, getUser, deleteUser };

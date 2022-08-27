@@ -5,9 +5,9 @@ import { getCardType, createCardType, listCardTypes, deleteCardType } from './ca
 userRouter
     .get('/card_types', listCardTypes)
     // .get('/card_types/detailed', listDetailedCardTypes)
+    // .get('/card_types/detailed/:id', getDetailedCardType)
     .post('/card_types', createCardType)
     .get('/card_types/:id', getCardType)
-    // .get('/card_types/detailed/:id', getDetailedCardType)
     // .put('/card_types/:id', updateCardType)
     .delete('/card_types/:id', deleteCardType);
 
