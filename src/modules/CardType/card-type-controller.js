@@ -1,6 +1,4 @@
 // Models
-import Card from '../Card/card-model.js';
-import User from '../User/user-model.js';
 import CardType from './card-type-model.js';
 
 const listCardTypes = async (req, res, next) => {

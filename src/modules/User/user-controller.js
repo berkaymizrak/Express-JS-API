@@ -33,13 +33,68 @@ const listDetailedUsers = async (req, res, next) => {
                 as: 'cards',
             },
         },
-        { $addFields: { cardCount: { $size: '$cards' } } },
+        {
+            $unwind: {
+                path: '$cards',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+
+        {
+            $lookup: {
+                from: 'cardtypes',
+                localField: 'cards.card_type_id',
+                foreignField: '_id',
+                as: 'cards.cardtype',
+            },
+        },
+        {
+            $unwind: {
+                path: '$cards.cardtype',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+
+        {
+            $group: {
+                _id: '$_id',
+                root: { $mergeObjects: '$$ROOT' },
+                cards: { $push: '$cards' },
+            },
+        },
+        {
+            $addFields: {
+                cards: {
+                    $filter: {
+                        input: '$cards',
+                        cond: { $ifNull: ['$$this._id', false] },
+                    },
+                },
+            },
+        },
+        {
+            $addFields: {
+                card_count: { $size: '$cards' },
+            },
+        },
+        {
+            $replaceRoot: {
+                newRoot: {
+                    $mergeObjects: ['$root', '$$ROOT'],
+                },
+            },
+        },
         {
             $project: {
-                // Hide/show selected columns from the response
-                __v: 0,
+                // Hide selected columns from the response
+                root: 0,
                 password: 0,
+                __v: 0,
                 'cards.__v': 0,
+                'cards.cardtype.__v': 0,
+                active: 0,
+                'cards.active': 0,
+                'cards.cardtype.active': 0,
             },
         },
     ])

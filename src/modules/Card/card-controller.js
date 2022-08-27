@@ -1,12 +1,70 @@
 // Models
 import Card from './card-model.js';
-import CardType from '../CardType/card-type-model.js';
-import User from '../User/user-model.js';
 
 const listCards = async (req, res, next) => {
     await Card.find()
         .sort({ createdAt: -1 })
         .select('-__v')
+        .then(cards => {
+            return res.status(200).send({
+                success: true,
+                message: 'Cards retrieved successfully',
+                count: cards.length,
+                data: cards,
+            });
+        })
+        .catch(err => {
+            return next({
+                status: 500,
+                success: false,
+                message: 'Error fetching cards',
+                detailed_message: err.message,
+            });
+        });
+};
+
+const listDetailedCards = async (req, res, next) => {
+    await Card.aggregate([
+        {
+            $lookup: {
+                from: 'cardtypes',
+                localField: 'card_type_id',
+                foreignField: '_id',
+                as: 'cardtype',
+            },
+        },
+        {
+            $unwind: {
+                path: '$cardtype',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+
+        {
+            $group: {
+                _id: '$_id',
+                root: { $mergeObjects: '$$ROOT' },
+                cardtype: { $first: '$cardtype' },
+            },
+        },
+        {
+            $replaceRoot: {
+                newRoot: {
+                    $mergeObjects: ['$root', '$$ROOT'],
+                },
+            },
+        },
+        {
+            $project: {
+                root: 0,
+                __v: 0,
+                'cardtype.__v': 0,
+                active: 0,
+                'cardtype.active': 0,
+            },
+        },
+    ])
+        .sort({ createdAt: -1 })
         .then(cards => {
             return res.status(200).send({
                 success: true,
@@ -118,4 +176,4 @@ const deleteCard = async (req, res, next) => {
         });
 };
 
-export { listCards, createCard, getCard, deleteCard };
+export { listCards, listDetailedCards, createCard, getCard, deleteCard };
