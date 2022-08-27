@@ -1,7 +1,7 @@
 import createError from 'http-errors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import logger from 'morgan';
+import { logger } from './config.js';
 
 // db connection
 import dbConnection from './helper/db.js';
@@ -16,7 +16,6 @@ import { env, port } from './config.js';
 
 const app = express();
 
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -29,15 +28,27 @@ app.use((req, res, next) => {
     next(createError(404));
 });
 
+// general interceptor for all requests
+app.use((serverResponse, req, res, next) => {
+    const { status, success, message, count, data } = serverResponse;
+
+    logger.info(serverResponse);
+
+    // Send response to client
+    return status !== 200 && !success
+        ? next(serverResponse) // if error, pass it to next middleware
+        : res.status(status || 200).send({ timestamp: new Date(), success, message, count, data });
+});
+
 // error handler
 app.use((err, req, res, next) => {
+    const { status, success, message, detailed_message } = err;
+
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = env.development ? err : {};
 
-    // render the error page
-    res.status(err.status || 500);
-    return res.json({ success: err.success, message: err.message, detailed_message: err.detailed_message });
+    return res.status(status || 500).send({ success, message, detailed_message });
 });
 
 app.listen(port, () => {

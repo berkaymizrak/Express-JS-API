@@ -14,7 +14,7 @@ function createToken(username, algorithm, expiresIn) {
 }
 
 const createUser = async (req, res, next) => {
-    const { username, name, surname, email, password } = req.body;
+    const { username, firstName, lastName, email, password } = req.body;
 
     await User.find({ $or: [{ username }, { email }] })
         .limit(1)
@@ -29,8 +29,8 @@ const createUser = async (req, res, next) => {
 
             const newUser = new User({
                 username,
-                name,
-                surname,
+                firstName,
+                lastName,
                 email,
                 password,
             });
@@ -43,15 +43,15 @@ const createUser = async (req, res, next) => {
                         detailed_message: err, // TODO check err or err.message
                     });
                 } else {
-                    const { _id: id, username, name, surname, email } = user;
+                    const { _id: id, username, firstName, lastName, email } = user;
                     return res.status(201).send({
                         success: true,
                         message: 'User created successfully',
                         data: {
                             id,
                             username,
-                            name,
-                            surname,
+                            firstName,
+                            lastName,
                             email,
                         },
                         credentials: {

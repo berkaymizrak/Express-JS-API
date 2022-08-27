@@ -2,15 +2,14 @@
 import Card from './card-model.js';
 
 const listCards = async (req, res, next) => {
-    await Card.find()
+    await Card.find({}, { __v: 0 })
         .sort({ createdAt: -1 })
-        .select('-__v')
-        .then(cards => {
+        .then(data => {
             return res.status(200).send({
                 success: true,
                 message: 'Cards retrieved successfully',
-                count: cards.length,
-                data: cards,
+                count: data.length,
+                data,
             });
         })
         .catch(err => {
@@ -65,12 +64,12 @@ const listDetailedCards = async (req, res, next) => {
         },
     ])
         .sort({ createdAt: -1 })
-        .then(cards => {
+        .then(data => {
             return res.status(200).send({
                 success: true,
                 message: 'Cards retrieved successfully',
-                count: cards.length,
-                data: cards,
+                count: data.length,
+                data,
             });
         })
         .catch(err => {
@@ -85,19 +84,19 @@ const listDetailedCards = async (req, res, next) => {
 
 const createCard = async (req, res, next) => {
     const { name, user_id, card_type_id, url_path } = req.body;
-    const card = new Card({
+    const data = new Card({
         name,
         user_id,
         card_type_id,
         url_path,
     });
-    await card
+    await data
         .save()
-        .then(card => {
+        .then(data => {
             return res.status(200).send({
                 success: true,
                 message: 'Card created successfully',
-                data: card,
+                data,
             });
         })
         .catch(err => {
@@ -112,9 +111,9 @@ const createCard = async (req, res, next) => {
 
 const getCard = async (req, res, next) => {
     const { id } = req.params;
-    await Card.findById(id)
-        .then(card => {
-            if (!card) {
+    await Card.findById({ _id: id }, { __v: 0 })
+        .then(data => {
+            if (!data) {
                 return res.status(200).send({
                     success: false,
                     message: 'Card not found',
@@ -124,12 +123,7 @@ const getCard = async (req, res, next) => {
                 return res.status(200).send({
                     success: true,
                     message: 'Card retrieved successfully',
-                    data: {
-                        _id: card._id,
-                        name: card.name,
-                        email: card.email,
-                        timestamp: card.timestamp,
-                    },
+                    data,
                 });
             }
         })
@@ -146,8 +140,8 @@ const getCard = async (req, res, next) => {
 const deleteCard = async (req, res, next) => {
     const { id } = req.params;
     await Card.findOneAndDelete(id)
-        .then(card => {
-            if (!card) {
+        .then(data => {
+            if (!data) {
                 return res.status(200).send({
                     success: false,
                     message: 'Card not found',
@@ -157,12 +151,7 @@ const deleteCard = async (req, res, next) => {
                 return res.status(200).send({
                     success: true,
                     message: 'Card deleted successfully',
-                    data: {
-                        _id: card._id,
-                        name: card.name,
-                        email: card.email,
-                        timestamp: card.timestamp,
-                    },
+                    data,
                 });
             }
         })

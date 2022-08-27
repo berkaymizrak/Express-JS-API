@@ -18,4 +18,21 @@ const env = {
     production: NODE_ENV === 'production',
 };
 
-export { mongoUri, port, JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, env };
+import { createLogger, format, transports } from 'winston';
+const logLevels = {
+    fatal: 0,
+    error: 1,
+    warn: 2,
+    info: 3,
+    debug: 4,
+    trace: 5,
+};
+const logFolder = 'logs/';
+const logger = createLogger({
+    levels: logLevels,
+    format: format.combine(format.timestamp(), format.json()),
+    transports: [new transports.File({ filename: logFolder + 'all.log' })],
+    exceptionHandlers: [new transports.File({ filename: logFolder + 'exceptions.log' })],
+    rejectionHandlers: [new transports.File({ filename: logFolder + 'rejections.log' })],
+});
+export { logger, mongoUri, port, JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, env };

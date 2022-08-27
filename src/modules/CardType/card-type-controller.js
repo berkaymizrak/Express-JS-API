@@ -2,15 +2,14 @@
 import CardType from './card-type-model.js';
 
 const listCardTypes = async (req, res, next) => {
-    await CardType.find()
+    await CardType.find({}, { __v: 0 })
         .sort({ createdAt: -1 })
-        .select('-__v')
-        .then(cardTypes => {
+        .then(data => {
             return res.status(200).send({
                 success: true,
                 message: 'Card Types retrieved successfully',
-                count: cardTypes.length,
-                data: cardTypes,
+                count: data.length,
+                data,
             });
         })
         .catch(err => {
@@ -25,18 +24,18 @@ const listCardTypes = async (req, res, next) => {
 
 const createCardType = async (req, res, next) => {
     const { name, icon, base_url } = req.body;
-    const card_type = new CardType({
+    const data = new CardType({
         name,
         icon,
         base_url,
     });
-    await card_type
+    await data
         .save()
-        .then(card_type => {
+        .then(data => {
             return res.status(200).send({
                 success: true,
                 message: 'Card Type created successfully',
-                data: card_type,
+                data,
             });
         })
         .catch(err => {
@@ -51,24 +50,19 @@ const createCardType = async (req, res, next) => {
 
 const getCardType = async (req, res, next) => {
     const { id } = req.params;
-    await CardType.findById(id)
-        .then(card_type => {
-            if (!card_type) {
+    await CardType.findById({ _id: id }, { __v: 0 })
+        .then(data => {
+            if (!data) {
                 return res.status(200).send({
                     success: false,
                     message: 'Card type not found',
-                    data: null,
+                    data,
                 });
             } else {
                 return res.status(200).send({
                     success: true,
                     message: 'Card type retrieved successfully',
-                    data: {
-                        _id: card_type._id,
-                        name: card_type.name,
-                        email: card_type.email,
-                        timestamp: card_type.timestamp,
-                    },
+                    data,
                 });
             }
         })
@@ -85,23 +79,18 @@ const getCardType = async (req, res, next) => {
 const deleteCardType = async (req, res, next) => {
     const { id } = req.params;
     await CardType.findOneAndDelete(id)
-        .then(card_type => {
-            if (!card_type) {
+        .then(data => {
+            if (!data) {
                 return res.status(200).send({
                     success: false,
                     message: 'Card type not found',
-                    data: null,
+                    data,
                 });
             } else {
                 return res.status(200).send({
                     success: true,
                     message: 'Card type deleted successfully',
-                    data: {
-                        _id: card_type._id,
-                        name: card_type.name,
-                        email: card_type.email,
-                        timestamp: card_type.timestamp,
-                    },
+                    data,
                 });
             }
         })

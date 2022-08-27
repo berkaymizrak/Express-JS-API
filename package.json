@@ -8,7 +8,6 @@
   "scripts": {
     "start": "yarn start:dev",
     "start:dev": "nodemon",
-
     "start:prod": "node ./build/index.js",
     "build:prod": "babel -d ./build ./server",
     "prebuild:prod": "rm -rf build/*",
@@ -23,7 +22,8 @@
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.5.2",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "winston": "^3.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.18.13",
