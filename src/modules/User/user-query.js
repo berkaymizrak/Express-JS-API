@@ -1,6 +1,7 @@
 import User from './user-model.js';
+import { resultLimit } from '../../config.js';
 
-const userFindQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
+const userFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -11,8 +12,8 @@ const userFindQuery = async (queryParams, filters, projection, sorting, limit, s
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0, password: 0 };
     if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
-    if (!limit) limit = queryParams.limit;
-    if (!skip) skip = queryParams.skip;
+    if (!limit) limit = queryParams.limit || resultLimit;
+    if (!skip) skip = queryParams.skip || 0;
 
     return await User.find(filters, projection)
         .limit(limit)
@@ -49,7 +50,7 @@ const userFindQuery = async (queryParams, filters, projection, sorting, limit, s
         });
 };
 
-const userFindDetailedQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
+const userFindDetailedQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -69,8 +70,8 @@ const userFindDetailedQuery = async (queryParams, filters, projection, sorting, 
     if (!filters) filters = [];
     if (!projection) projection = { password: 0 };
     if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
-    if (!limit) limit = queryParams.limit;
-    if (!skip) skip = queryParams.skip;
+    if (!limit) limit = queryParams.limit || resultLimit;
+    if (!skip) skip = queryParams.skip || 0;
 
     return await User.aggregate([
         ...filters,

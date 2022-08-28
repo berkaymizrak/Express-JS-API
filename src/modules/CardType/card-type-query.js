@@ -1,6 +1,7 @@
 import CardType from './card-type-model.js';
+import { resultLimit } from '../../config.js';
 
-const cardTypesFindQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
+const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -11,8 +12,8 @@ const cardTypesFindQuery = async (queryParams, filters, projection, sorting, lim
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0 };
     if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
-    if (!limit) limit = queryParams.limit;
-    if (!skip) skip = queryParams.skip;
+    if (!limit) limit = queryParams.limit || resultLimit;
+    if (!skip) skip = queryParams.skip || 0;
 
     return await CardType.find(filters, projection)
         .limit(limit)

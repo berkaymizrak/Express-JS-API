@@ -1,6 +1,7 @@
 import Card from './card-model.js';
+import { resultLimit } from '../../config.js';
 
-const cardFindQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
+const cardFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -11,8 +12,8 @@ const cardFindQuery = async (queryParams, filters, projection, sorting, limit, s
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0 };
     if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
-    if (!limit) limit = queryParams.limit;
-    if (!skip) skip = queryParams.skip;
+    if (!limit) limit = queryParams.limit || resultLimit;
+    if (!skip) skip = queryParams.skip || 0;
 
     return await Card.find(filters, projection)
         .limit(limit)
@@ -49,7 +50,7 @@ const cardFindQuery = async (queryParams, filters, projection, sorting, limit, s
         });
 };
 
-const cardFindDetailedQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
+const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -69,8 +70,8 @@ const cardFindDetailedQuery = async (queryParams, filters, projection, sorting, 
     if (!filters) filters = [];
     if (!projection) projection = {};
     if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
-    if (!limit) limit = queryParams.limit;
-    if (!skip) skip = queryParams.skip;
+    if (!limit) limit = queryParams.limit || resultLimit;
+    if (!skip) skip = queryParams.skip || 0;
 
     return await Card.aggregate([
         ...filters,

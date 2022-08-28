@@ -26,7 +26,7 @@ const createUser = async (req, res, next) => {
     const { username, email } = req.body;
 
     const filters = { $or: [{ username }, { email }] };
-    return await userFindQuery(req.query, filters, null, null, 1)
+    return await userFindQuery(req.query, { filters, limit: 1 })
         .then(async responseFindQuery => {
             if (!responseFindQuery.success && responseFindQuery.status !== 200)
                 return next(responseFindQuery);
@@ -64,7 +64,9 @@ const createUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
     const { username, password } = req.body;
-    return await userFindQuery(req.query, { username }, { __v: 0 }, null, 1)
+    const filters = { username };
+    const projection = { __v: 0 };
+    return await userFindQuery(req.query, { filters, projection, limit: 1 })
         .then(async responseFindQuery => {
             if (!responseFindQuery.success && responseFindQuery.status !== 200)
                 return next(responseFindQuery);
