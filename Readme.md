@@ -31,7 +31,7 @@ npm start
 
 Postman API documentation is created and can be accessible by visiting public urls.
 
-- **Visit Online Documentation:** [https://documenter.getpostman.com/view/11424728/VUxKTUqv](https://documenter.getpostman.com/view/11424728/VUxKTUqv){:target="_blank"}
-- **Send Requests Online:** [https://www.postman.com/berkaymizrak/workspace/express-js-api/overview](https://www.postman.com/berkaymizrak/workspace/express-js-api/overview){:target="_blank"}
+- **Visit Online Documentation:** https://documenter.getpostman.com/view/11424728/VUxKTUqv
+- **Send Requests Online:** https://www.postman.com/berkaymizrak/workspace/express-js-api/overview
 
 **Note:** Be sure you selected the environment *Express JS API Env Local* from top right corner.
