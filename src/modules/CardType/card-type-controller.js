@@ -5,6 +5,7 @@ import {
     cardTypeGetQuery,
     cardTypeCreateQuery,
     cardTypesListQuery,
+    cardTypeUpdateQuery,
 } from './card-type-query.js';
 
 const listCardTypes = async (req, res, next) => {

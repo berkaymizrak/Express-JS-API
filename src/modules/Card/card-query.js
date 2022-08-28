@@ -1,9 +1,17 @@
 import Card from './card-model.js';
 import mongoose from 'mongoose';
 
-const cardListQuery = async () => {
-    return await Card.find({}, { __v: 0 })
-        .sort({ createdAt: -1 })
+const cardFindQuery = async (filters = {}, projection = {}, sorting = { createdAt: -1 }) => {
+    // EXAMPLE
+    // const filters = {
+    //     // REGEX:
+    //     username: /.*mizrak.*/,
+    //     email: /.*test_includes_value.*/,
+    //     active: true
+    // };
+
+    return await Card.find(filters, { __v: 0, ...projection })
+        .sort(sorting)
         .then(data => {
             return {
                 status: 200,
@@ -23,56 +31,64 @@ const cardListQuery = async () => {
         });
 };
 
-const cardListDetailedQuery = async id => {
-    const extraQuery = [];
-    if (id) {
-        extraQuery.push({
-            $match: { _id: mongoose.Types.ObjectId(id) },
-        });
-    }
-    return await Card.aggregate(
-        extraQuery.concat([
-            {
-                $lookup: {
-                    from: 'cardtypes',
-                    localField: 'card_type_id',
-                    foreignField: '_id',
-                    as: 'cardtype',
-                },
-            },
-            {
-                $unwind: {
-                    path: '$cardtype',
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
+const cardFindDetailedQuery = async (filters = [], projection = {}, sorting = { createdAt: -1 }) => {
+    // EXAMPLE
+    // const filters = [
+    //     {
+    //         $match: { _id: mongoose.Types.ObjectId(id) },
+    //     },
+    //     {
+    //         // REGEX:
+    //         $match: { username: /.*mizrak.*/ },
+    //     },
+    //     {
+    //         $match: { email: /.*localhost.com.*/ },
+    //     },
+    // ];
 
-            {
-                $group: {
-                    _id: '$_id',
-                    root: { $mergeObjects: '$$ROOT' },
-                    cardtype: { $first: '$cardtype' },
+    return await Card.aggregate([
+        ...filters,
+        {
+            $lookup: {
+                from: 'cardtypes',
+                localField: 'card_type_id',
+                foreignField: '_id',
+                as: 'cardtype',
+            },
+        },
+        {
+            $unwind: {
+                path: '$cardtype',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+
+        {
+            $group: {
+                _id: '$_id',
+                root: { $mergeObjects: '$$ROOT' },
+                cardtype: { $first: '$cardtype' },
+            },
+        },
+        {
+            $replaceRoot: {
+                newRoot: {
+                    $mergeObjects: ['$root', '$$ROOT'],
                 },
             },
-            {
-                $replaceRoot: {
-                    newRoot: {
-                        $mergeObjects: ['$root', '$$ROOT'],
-                    },
-                },
+        },
+        {
+            $project: {
+                root: 0,
+                __v: 0,
+                'cardtype.__v': 0,
+                active: 0,
+                'cardtype.active': 0,
+                ...projection,
             },
-            {
-                $project: {
-                    root: 0,
-                    __v: 0,
-                    'cardtype.__v': 0,
-                    active: 0,
-                    'cardtype.active': 0,
-                },
-            },
-        ])
-    )
-        .sort({ createdAt: -1 })
+        },
+    ])
+        .sort(sorting)
         .then(data => {
             return {
                 status: 200,
@@ -119,51 +135,15 @@ const cardCreateQuery = async body => {
         });
 };
 
-const cardGetQuery = async id => {
-    return await Card.findById({ _id: id }, { __v: 0 })
+const cardUpdateQuery = async (filters, update, projection = {}) => {
+    return await Card.findOneAndUpdate(filters, update, { new: true, projection: { __v: 0, ...projection } })
         .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'Card not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'Card retrieved successfully',
-                    data,
-                };
-            }
-        })
-        .catch(err => {
             return {
-                status: 500,
-                success: false,
-                message: 'Error fetching card',
-                detailed_message: err.message,
+                status: 200,
+                success: !!data,
+                message: data ? 'Card updated successfully' : 'Card not found',
+                data,
             };
-        });
-};
-
-const cardUpdateQuery = async id => {
-    return await Card.findByIdAndUpdate(id, { $new: true })
-        .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'Card not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'Card updated successfully',
-                    data,
-                };
-            }
         })
         .catch(err => {
             return {
@@ -175,23 +155,15 @@ const cardUpdateQuery = async id => {
         });
 };
 
-const cardDeleteQuery = async id => {
-    return await Card.findOneAndDelete(id)
+const cardDeleteQuery = async (filters, projection = {}) => {
+    return await Card.findOneAndDelete(filters, { projection: { __v: 0, ...projection } })
         .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'Card not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'Card deleted successfully',
-                    data,
-                };
-            }
+            return {
+                status: 200,
+                success: !!data,
+                message: data ? 'Card deleted successfully' : 'Card not found',
+                data,
+            };
         })
         .catch(err => {
             return {
@@ -203,11 +175,4 @@ const cardDeleteQuery = async id => {
         });
 };
 
-export {
-    cardListQuery,
-    cardListDetailedQuery,
-    cardCreateQuery,
-    cardGetQuery,
-    cardUpdateQuery,
-    cardDeleteQuery,
-};
+export { cardFindQuery, cardFindDetailedQuery, cardCreateQuery, cardUpdateQuery, cardDeleteQuery };
