@@ -10,7 +10,7 @@ const cardFindQuery = async (queryParams, filters, projection, sorting, limit, s
     // };
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0 };
-    if (!sorting) sorting = { createdAt: -1 };
+    if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
     if (!limit) limit = queryParams.limit;
     if (!skip) skip = queryParams.skip;
 
@@ -68,7 +68,7 @@ const cardFindDetailedQuery = async (queryParams, filters, projection, sorting, 
     // ];
     if (!filters) filters = [];
     if (!projection) projection = {};
-    if (!sorting) sorting = { createdAt: -1 };
+    if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
     if (!limit) limit = queryParams.limit;
     if (!skip) skip = queryParams.skip;
 

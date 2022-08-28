@@ -10,7 +10,7 @@ const cardTypesFindQuery = async (queryParams, filters, projection, sorting, lim
     // };
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0 };
-    if (!sorting) sorting = { createdAt: -1 };
+    if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
     if (!limit) limit = queryParams.limit;
     if (!skip) skip = queryParams.skip;
 

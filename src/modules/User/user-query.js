@@ -10,7 +10,7 @@ const userFindQuery = async (queryParams, filters, projection, sorting, limit, s
     // };
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0, password: 0 };
-    if (!sorting) sorting = { createdAt: -1 };
+    if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
     if (!limit) limit = queryParams.limit;
     if (!skip) skip = queryParams.skip;
 
@@ -68,7 +68,7 @@ const userFindDetailedQuery = async (queryParams, filters, projection, sorting, 
     // ];
     if (!filters) filters = [];
     if (!projection) projection = { password: 0 };
-    if (!sorting) sorting = { createdAt: -1 };
+    if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
     if (!limit) limit = queryParams.limit;
     if (!skip) skip = queryParams.skip;
 
