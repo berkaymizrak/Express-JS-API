@@ -1,9 +1,17 @@
 // Models
 import CardType from './card-type-model.js';
 
-const cardTypesListQuery = async () => {
-    return await CardType.find({}, { __v: 0 })
-        .sort({ createdAt: -1 })
+const cardTypesFindQuery = async (filters = {}, projection = {}, sorting = { createdAt: -1 }) => {
+    // EXAMPLE
+    // const filters = {
+    //     // REGEX:
+    //     username: /.*mizrak.*/,
+    //     email: /.*test_includes_value.*/,
+    //     active: true
+    // };
+
+    return await CardType.find(filters, { __v: 0, ...projection })
+        .sort(sorting)
         .then(data => {
             return {
                 status: 200,
@@ -49,51 +57,15 @@ const cardTypeCreateQuery = async body => {
         });
 };
 
-const cardTypeGetQuery = async id => {
-    return await CardType.findById({ _id: id }, { __v: 0 })
+const cardTypeUpdateQuery = async (filters, update, projection = {}) => {
+    return await CardType.findOneAndUpdate(filters, { new: true, projection: { __v: 0, ...projection } })
         .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'Card type not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'Card type retrieved successfully',
-                    data,
-                };
-            }
-        })
-        .catch(err => {
             return {
-                status: 500,
-                success: false,
-                message: 'Error fetching card type',
-                detailed_message: err.message,
+                status: 200,
+                success: !!data,
+                message: data ? 'Card type updated successfully' : 'Card type not found',
+                data,
             };
-        });
-};
-
-const cardTypeUpdateQuery = async id => {
-    return await CardType.findByIdAndUpdate(id, { $new: true })
-        .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'Card type not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'Card type updated successfully',
-                    data,
-                };
-            }
         })
         .catch(err => {
             return {
@@ -105,23 +77,15 @@ const cardTypeUpdateQuery = async id => {
         });
 };
 
-const cardTypeDeleteQuery = async id => {
-    return await CardType.findOneAndDelete(id)
+const cardTypeDeleteQuery = async (filters, projection = {}) => {
+    return await CardType.findOneAndDelete(filters, { projection: { __v: 0, ...projection } })
         .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'Card type not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'Card type deleted successfully',
-                    data,
-                };
-            }
+            return {
+                status: 200,
+                success: !!data,
+                message: data ? 'Card type deleted successfully' : 'Card type not found',
+                data,
+            };
         })
         .catch(err => {
             return {
@@ -133,10 +97,4 @@ const cardTypeDeleteQuery = async id => {
         });
 };
 
-export {
-    cardTypeDeleteQuery,
-    cardTypeGetQuery,
-    cardTypeCreateQuery,
-    cardTypeUpdateQuery,
-    cardTypesListQuery,
-};
+export { cardTypeDeleteQuery, cardTypeCreateQuery, cardTypeUpdateQuery, cardTypesFindQuery };
