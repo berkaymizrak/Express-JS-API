@@ -9,6 +9,7 @@ const userFindQuery = async (filters = {}, projection = {}, sorting = { createdA
     //     email: /.*test_includes_value.*/,
     //     active: true
     // };
+
     return await User.find(filters, { __v: 0, password: 0, ...projection })
         .sort(sorting)
         .then(data => {
@@ -30,7 +31,7 @@ const userFindQuery = async (filters = {}, projection = {}, sorting = { createdA
         });
 };
 
-const userListDetailedQuery = async (filters = [], projection = {}, sorting = { createdAt: -1 }) => {
+const userFindDetailedQuery = async (filters = [], projection = {}, sorting = { createdAt: -1 }) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -185,4 +186,4 @@ const userDeleteQuery = async (filters, projection = {}) => {
         });
 };
 
-export { userFindQuery, userListDetailedQuery, userUpdateQuery, userDeleteQuery };
+export { userFindQuery, userFindDetailedQuery, userUpdateQuery, userDeleteQuery };
