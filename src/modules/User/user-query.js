@@ -1,45 +1,24 @@
 import User from './user-model.js';
 import mongoose from 'mongoose';
 
-const userListQuery = async () => {
-    return await User.find({}, { __v: 0, password: 0 })
-        .sort({ createdAt: -1 })
+const userFindQuery = async (filters = {}, projection = {}, sorting = { createdAt: -1 }) => {
+    // EXAMPLE
+    // const filters = {
+    //     // REGEX:
+    //     username: /.*mizrak.*/,
+    //     email: /.*test_includes_value.*/,
+    //     active: true
+    // };
+    return await User.find(filters, { __v: 0, password: 0, ...projection })
+        .sort(sorting)
         .then(data => {
             return {
                 status: 200,
-                success: true,
-                message: 'Users retrieved successfully',
+                success: !!data,
+                message: data ? 'User retrieved successfully' : 'User not found',
                 count: data.length,
                 data,
             };
-        })
-        .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error fetching users',
-                detailed_message: err.message,
-            };
-        });
-};
-
-const userGetQuery = async id => {
-    return await User.findById({ _id: id }, { __v: 0, password: 0 })
-        .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'User not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'User retrieved successfully',
-                    data,
-                };
-            }
         })
         .catch(err => {
             return {
@@ -51,91 +30,99 @@ const userGetQuery = async id => {
         });
 };
 
-const userListDetailedQuery = async id => {
-    const extraQuery = [];
-    if (id) {
-        extraQuery.push({
-            $match: { _id: mongoose.Types.ObjectId(id) },
-        });
-    }
-    return await User.aggregate(
-        extraQuery.concat([
-            {
-                $lookup: {
-                    from: 'cards',
-                    localField: '_id',
-                    foreignField: 'user_id',
-                    as: 'cards',
-                },
-            },
-            {
-                $unwind: {
-                    path: '$cards',
-                    preserveNullAndEmptyArrays: true,
-                },
-            },
+const userListDetailedQuery = async (filters = [], projection = {}, sorting = { createdAt: -1 }) => {
+    // EXAMPLE
+    // const filters = [
+    //     {
+    //         $match: { _id: mongoose.Types.ObjectId(id) },
+    //     },
+    //     {
+    //         // REGEX:
+    //         $match: { username: /.*mizrak.*/ },
+    //     },
+    //     {
+    //         $match: { email: /.*localhost.com.*/ },
+    //     },
+    // ];
 
-            {
-                $lookup: {
-                    from: 'cardtypes',
-                    localField: 'cards.card_type_id',
-                    foreignField: '_id',
-                    as: 'cards.cardtype',
-                },
+    return await User.aggregate([
+        ...filters,
+        {
+            $lookup: {
+                from: 'cards',
+                localField: '_id',
+                foreignField: 'user_id',
+                as: 'cards',
             },
-            {
-                $unwind: {
-                    path: '$cards.cardtype',
-                    preserveNullAndEmptyArrays: true,
-                },
+        },
+        {
+            $unwind: {
+                path: '$cards',
+                preserveNullAndEmptyArrays: true,
             },
+        },
 
-            {
-                $group: {
-                    _id: '$_id',
-                    root: { $mergeObjects: '$$ROOT' },
-                    cards: { $push: '$cards' },
-                },
+        {
+            $lookup: {
+                from: 'cardtypes',
+                localField: 'cards.card_type_id',
+                foreignField: '_id',
+                as: 'cards.cardtype',
             },
-            {
-                $addFields: {
-                    cards: {
-                        $filter: {
-                            input: '$cards',
-                            cond: { $ifNull: ['$$this._id', false] },
-                        },
+        },
+        {
+            $unwind: {
+                path: '$cards.cardtype',
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+
+        {
+            $group: {
+                _id: '$_id',
+                root: { $mergeObjects: '$$ROOT' },
+                cards: { $push: '$cards' },
+            },
+        },
+        {
+            $addFields: {
+                cards: {
+                    $filter: {
+                        input: '$cards',
+                        cond: { $ifNull: ['$$this._id', false] },
                     },
                 },
             },
-            {
-                $addFields: {
-                    card_count: { $size: '$cards' },
-                    fullName: { $concat: ['$firstName', ' ', '$lastName'] },
+        },
+        {
+            $addFields: {
+                card_count: { $size: '$cards' },
+                fullName: { $concat: ['$firstName', ' ', '$lastName'] },
+            },
+        },
+        {
+            $replaceRoot: {
+                newRoot: {
+                    $mergeObjects: ['$root', '$$ROOT'],
                 },
             },
-            {
-                $replaceRoot: {
-                    newRoot: {
-                        $mergeObjects: ['$root', '$$ROOT'],
-                    },
-                },
+        },
+        {
+            $project: {
+                // Hide selected columns from the response
+                root: 0,
+                password: 0,
+                __v: 0,
+                'cards.__v': 0,
+                'cards.cardtype.__v': 0,
+                active: 0,
+                'cards.active': 0,
+                'cards.cardtype.active': 0,
+                ...projection,
             },
-            {
-                $project: {
-                    // Hide selected columns from the response
-                    root: 0,
-                    password: 0,
-                    __v: 0,
-                    'cards.__v': 0,
-                    'cards.cardtype.__v': 0,
-                    active: 0,
-                    'cards.active': 0,
-                    'cards.cardtype.active': 0,
-                },
-            },
-        ])
-    )
-        .sort({ createdAt: -1 })
+        },
+    ])
+        .sort(sorting)
         .then(data => {
             return {
                 status: 200,
@@ -155,23 +142,38 @@ const userListDetailedQuery = async id => {
         });
 };
 
-const userUpdateQuery = async id => {
-    return await User.findByIdAndUpdate(id, { $new: true })
+const userUpdateQuery = async (filters, update, projection = {}) => {
+    return await User.findOneAndUpdate(filters, update, {
+        new: true,
+        projection: { __v: 0, password: 0, ...projection },
+    })
         .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'User not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'User deleted successfully',
-                    data,
-                };
-            }
+            return {
+                status: 200,
+                success: !!data,
+                message: data ? 'User updated successfully' : 'User not found',
+                data,
+            };
+        })
+        .catch(err => {
+            return {
+                status: 500,
+                success: false,
+                message: 'Error updating user',
+                detailed_message: err.message,
+            };
+        });
+};
+
+const userDeleteQuery = async (filters, projection = {}) => {
+    return await User.findOneAndDelete(filters, { projection: { __v: 0, password: 0, ...projection } })
+        .then(data => {
+            return {
+                status: 200,
+                success: !!data,
+                message: data ? 'User deleted successfully' : 'User not found',
+                data,
+            };
         })
         .catch(err => {
             return {
@@ -183,32 +185,4 @@ const userUpdateQuery = async id => {
         });
 };
 
-const userDeleteQuery = async id => {
-    return await User.findOneAndDelete(id)
-        .then(data => {
-            if (!data) {
-                return {
-                    status: 200,
-                    success: false,
-                    message: 'User not found',
-                };
-            } else {
-                return {
-                    status: 200,
-                    success: true,
-                    message: 'User deleted successfully',
-                    data,
-                };
-            }
-        })
-        .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error deleting user',
-                detailed_message: err.message,
-            };
-        });
-};
-
-export { userListQuery, userGetQuery, userListDetailedQuery, userUpdateQuery, userDeleteQuery };
+export { userFindQuery, userListDetailedQuery, userUpdateQuery, userDeleteQuery };

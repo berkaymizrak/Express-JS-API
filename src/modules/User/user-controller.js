@@ -1,8 +1,9 @@
 // Models
-import { userListQuery, userDeleteQuery, userGetQuery, userListDetailedQuery } from './user-query.js';
+import { userDeleteQuery, userFindQuery, userListDetailedQuery, userUpdateQuery } from './user-query.js';
+import mongoose from 'mongoose';
 
 const listUsers = async (req, res, next) => {
-    return next(await userListQuery());
+    return next(await userFindQuery());
 };
 
 const listDetailedUsers = async (req, res, next) => {
@@ -11,13 +12,19 @@ const listDetailedUsers = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
     const { id } = req.params;
-
-    return next(await userGetQuery(id));
+    const filters = { _id: id };
+    return next(await userFindQuery(filters));
 };
 
 const getDetailedUser = async (req, res, next) => {
     const { id } = req.params;
-    let response = await userListDetailedQuery(id);
+    const filters = [
+        {
+            $match: { _id: mongoose.Types.ObjectId(id) },
+        },
+    ];
+    let response = await userListDetailedQuery(filters);
+
     let { success, data } = response;
     if (success) {
         data = data.find(card => card._id == id);
@@ -28,12 +35,14 @@ const getDetailedUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
     const { id } = req.params;
-    return next(await userUpdateQuery(id));
+    const filters = { _id: id };
+    return next(await userUpdateQuery(filters, req.body));
 };
 
 const deleteUser = async (req, res, next) => {
     const { id } = req.params;
-    return next(await userDeleteQuery(id));
+    const filters = { _id: id };
+    return next(await userDeleteQuery(filters));
 };
 
 export { listUsers, listDetailedUsers, getDetailedUser, getUser, updateUser, deleteUser };
