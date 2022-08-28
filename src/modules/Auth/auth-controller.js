@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import User from '../User/user-model.js';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM } from '../../config.js';
+import { userCreateQuery, userFindQuery } from '../User/user-query.js';
 
 function createToken(username, algorithm, expiresIn) {
     const payload = {
@@ -13,58 +14,46 @@ function createToken(username, algorithm, expiresIn) {
     });
 }
 
-const createUser = async (req, res, next) => {
-    const { username, firstName, lastName, email, password } = req.body;
+function createCredentials(username) {
+    return {
+        tokenType: 'Bearer',
+        accessToken: createToken(username, JWT_ALGORITHM, '6h'),
+        refreshToken: createToken(username, JWT_REFRESH_ALGORITHM, '1d'),
+    };
+}
 
-    await User.find({ $or: [{ username }, { email }] })
-        .limit(1)
-        .then(checkedUser => {
-            if (checkedUser.length > 0) {
+const createUser = async (req, res, next) => {
+    const { username, email } = req.body;
+
+    const filters = { $or: [{ username }, { email }] };
+    return await userFindQuery(filters, null, null, 1)
+        .then(async responseFindQuery => {
+            if (!responseFindQuery.success && responseFindQuery.status !== 200)
+                return next(responseFindQuery);
+            if (responseFindQuery.data.length > 0) {
                 return next({
                     status: 409,
                     success: false,
-                    message: 'User is already exists',
+                    message: 'Username or Email already exists',
                 });
+            } else {
+                return await userCreateQuery(req.body)
+                    .then(responseCreateQuery => {
+                        responseCreateQuery['credentials'] = createCredentials(username);
+                        return next(responseCreateQuery);
+                    })
+                    .catch(err => {
+                        return next({
+                            status: 500,
+                            success: false,
+                            message: 'Error creating user',
+                            detailed_message: err.message,
+                        });
+                    });
             }
-
-            const newUser = new User({
-                username,
-                firstName,
-                lastName,
-                email,
-                password,
-            });
-            newUser.save((err, user) => {
-                if (err) {
-                    return next({
-                        status: 500,
-                        success: false,
-                        message: 'Error creating user',
-                        detailed_message: err, // TODO check err or err.message
-                    });
-                } else {
-                    const { _id: id, username, firstName, lastName, email } = user;
-                    return res.status(201).send({
-                        success: true,
-                        message: 'User created successfully',
-                        data: {
-                            id,
-                            username,
-                            firstName,
-                            lastName,
-                            email,
-                        },
-                        credentials: {
-                            tokenType: 'Bearer',
-                            accessToken: createToken(username, JWT_ALGORITHM, '6h'),
-                            refreshToken: createToken(username, JWT_REFRESH_ALGORITHM, '1d'),
-                        },
-                    });
-                }
-            });
         })
         .catch(err => {
-            next({
+            return next({
                 status: 500,
                 success: false,
                 message: 'Error creating user',
@@ -75,41 +64,52 @@ const createUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
     const { username, password } = req.body;
+    return await userFindQuery({ username }, { __v: 0 }, null, 1)
+        .then(async responseFindQuery => {
+            if (!responseFindQuery.success && responseFindQuery.status !== 200)
+                return next(responseFindQuery);
+            if (responseFindQuery.data.length > 0) {
+                const responseData = responseFindQuery.data[0];
+                bcrypt.compare(password, responseData.password, (err, result) => {
+                    if (err)
+                        return next({
+                            status: 500,
+                            success: false,
+                            message: 'Error comparing password',
+                            detailed_message: err.message,
+                        });
+                    if (!result)
+                        return next({
+                            status: 401,
+                            success: false,
+                            message: 'Incorrect Password or Username',
+                        });
 
-    User.findOne({ username }).then(user => {
-        if (!user)
-            return next({
-                status: 401,
-                success: false,
-                message: 'Incorrect Password or Username',
-            });
-        bcrypt.compare(password, user.password, (err, result) => {
-            if (err)
-                return next({
-                    status: 500,
-                    success: false,
-                    message: 'Error comparing password',
-                    detailed_message: err.message,
+                    responseData.password = undefined;
+                    return next({
+                        status: 200,
+                        success: true,
+                        message: 'User logged in successfully',
+                        data: responseData,
+                        credentials: createCredentials(username),
+                    });
                 });
-            if (!result)
+            } else {
                 return next({
                     status: 401,
                     success: false,
                     message: 'Incorrect Password or Username',
                 });
-
-            return res.status(200).send({
-                success: true,
-                message: 'User logged in successfully',
-                data: user,
-                credentials: {
-                    tokenType: 'Bearer',
-                    accessToken: createToken(username, JWT_ALGORITHM, '6h'),
-                    refreshToken: createToken(username, JWT_REFRESH_ALGORITHM, '1d'),
-                },
+            }
+        })
+        .catch(err => {
+            return next({
+                status: 500,
+                success: false,
+                message: 'Error logging in user',
+                detailed_message: err.message,
             });
         });
-    });
 };
 
 export { createUser, loginUser };

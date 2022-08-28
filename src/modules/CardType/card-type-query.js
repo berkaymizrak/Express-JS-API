@@ -1,7 +1,7 @@
-// Models
 import CardType from './card-type-model.js';
+import { resultLimit } from '../../config.js';
 
-const cardTypesFindQuery = async (filters = {}, projection = {}, sorting = { createdAt: -1 }) => {
+const cardTypesFindQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -9,8 +9,13 @@ const cardTypesFindQuery = async (filters = {}, projection = {}, sorting = { cre
     //     email: /.*test_includes_value.*/,
     //     active: true
     // };
+    if (!filters) filters = {};
+    if (!projection) projection = { __v: 0 };
+    if (!sorting) sorting = { createdAt: -1 };
+    if (!limit) limit = resultLimit;
 
-    return await CardType.find(filters, { __v: 0, ...projection })
+    return await CardType.find(filters, projection)
+        .limit(limit)
         .sort(sorting)
         .then(data => {
             return {
@@ -41,7 +46,7 @@ const cardTypeCreateQuery = async body => {
         .save()
         .then(data => {
             return {
-                status: 200,
+                status: 201,
                 success: true,
                 message: 'Card Type created successfully',
                 data,
@@ -57,8 +62,8 @@ const cardTypeCreateQuery = async body => {
         });
 };
 
-const cardTypeUpdateQuery = async (filters, update, projection = {}) => {
-    return await CardType.findOneAndUpdate(filters, { new: true, projection: { __v: 0, ...projection } })
+const cardTypeUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
+    return await CardType.findOneAndUpdate(filters, { new: true, projection: projection })
         .then(data => {
             return {
                 status: 200,
@@ -77,8 +82,8 @@ const cardTypeUpdateQuery = async (filters, update, projection = {}) => {
         });
 };
 
-const cardTypeDeleteQuery = async (filters, projection = {}) => {
-    return await CardType.findOneAndDelete(filters, { projection: { __v: 0, ...projection } })
+const cardTypeDeleteQuery = async (filters, projection = { __v: 0 }) => {
+    return await CardType.findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,

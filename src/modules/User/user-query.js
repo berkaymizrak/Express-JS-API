@@ -1,7 +1,7 @@
 import User from './user-model.js';
-import mongoose from 'mongoose';
+import { JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, resultLimit } from '../../config.js';
 
-const userFindQuery = async (filters = {}, projection = {}, sorting = { createdAt: -1 }) => {
+const userFindQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -9,14 +9,19 @@ const userFindQuery = async (filters = {}, projection = {}, sorting = { createdA
     //     email: /.*test_includes_value.*/,
     //     active: true
     // };
+    if (!filters) filters = {};
+    if (!projection) projection = { __v: 0, password: 0 };
+    if (!sorting) sorting = { createdAt: -1 };
+    if (!limit) limit = resultLimit;
 
-    return await User.find(filters, { __v: 0, password: 0, ...projection })
+    return await User.find(filters, projection)
+        .limit(limit)
         .sort(sorting)
         .then(data => {
             return {
                 status: 200,
-                success: !!data,
-                message: data ? 'User retrieved successfully' : 'User not found',
+                success: true,
+                message: 'Users retrieved successfully',
                 count: data.length,
                 data,
             };
@@ -25,13 +30,13 @@ const userFindQuery = async (filters = {}, projection = {}, sorting = { createdA
             return {
                 status: 500,
                 success: false,
-                message: 'Error fetching user',
+                message: 'Error fetching users',
                 detailed_message: err.message,
             };
         });
 };
 
-const userFindDetailedQuery = async (filters = [], projection = {}, sorting = { createdAt: -1 }) => {
+const userFindDetailedQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -44,7 +49,17 @@ const userFindDetailedQuery = async (filters = [], projection = {}, sorting = { 
     //     {
     //         $match: { email: /.*localhost.com.*/ },
     //     },
+    //     {
+    //         username: { $in: [ 'berkay', 'mizrak' ] }
+    //     },
     // ];
+    if (!filters) filters = [];
+    if (!projection) projection = { password: 0 };
+    if (!sorting) sorting = { createdAt: -1 };
+    if (!limit) limit = resultLimit;
+
+    // TODO - add pagination
+    const skip = 0;
 
     return await User.aggregate([
         ...filters,
@@ -108,11 +123,12 @@ const userFindDetailedQuery = async (filters = [], projection = {}, sorting = { 
                 },
             },
         },
+        { $limit: skip + limit },
+        { $skip: skip },
         {
             $project: {
                 // Hide selected columns from the response
                 root: 0,
-                password: 0,
                 __v: 0,
                 'cards.__v': 0,
                 'cards.cardtype.__v': 0,
@@ -143,10 +159,38 @@ const userFindDetailedQuery = async (filters = [], projection = {}, sorting = { 
         });
 };
 
-const userUpdateQuery = async (filters, update, projection = {}) => {
+const userCreateQuery = async body => {
+    const { username, firstName, lastName, email, password } = body;
+    return await new User({
+        username,
+        firstName,
+        lastName,
+        email,
+        password,
+    })
+        .save()
+        .then(data => {
+            return {
+                status: 201,
+                success: true,
+                message: 'User created successfully',
+                data,
+            };
+        })
+        .catch(err => {
+            return {
+                status: 500,
+                success: false,
+                message: 'Error creating user',
+                detailed_message: err.message,
+            };
+        });
+};
+
+const userUpdateQuery = async (filters, update, projection = { __v: 0, password: 0 }) => {
     return await User.findOneAndUpdate(filters, update, {
         new: true,
-        projection: { __v: 0, password: 0, ...projection },
+        projection: projection,
     })
         .then(data => {
             return {
@@ -166,8 +210,8 @@ const userUpdateQuery = async (filters, update, projection = {}) => {
         });
 };
 
-const userDeleteQuery = async (filters, projection = {}) => {
-    return await User.findOneAndDelete(filters, { projection: { __v: 0, password: 0, ...projection } })
+const userDeleteQuery = async (filters, projection = { __v: 0, password: 0 }) => {
+    return await User.findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,
@@ -186,4 +230,4 @@ const userDeleteQuery = async (filters, projection = {}) => {
         });
 };
 
-export { userFindQuery, userFindDetailedQuery, userUpdateQuery, userDeleteQuery };
+export { userFindQuery, userFindDetailedQuery, userCreateQuery, userUpdateQuery, userDeleteQuery };

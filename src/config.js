@@ -17,6 +17,7 @@ const env = {
     staging: NODE_ENV === 'staging',
     production: NODE_ENV === 'production',
 };
+const resultLimit = process.env.RESULT_LIMIT || 10;
 
 import { createLogger, format, transports } from 'winston';
 const logLevels = {
@@ -35,4 +36,4 @@ const logger = createLogger({
     exceptionHandlers: [new transports.File({ filename: logFolder + 'exceptions.log' })],
     rejectionHandlers: [new transports.File({ filename: logFolder + 'rejections.log' })],
 });
-export { logger, mongoUri, port, JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, env };
+export { logger, mongoUri, port, JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, env, resultLimit };

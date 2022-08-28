@@ -1,7 +1,7 @@
 import Card from './card-model.js';
-import mongoose from 'mongoose';
+import { resultLimit } from '../../config.js';
 
-const cardFindQuery = async (filters = {}, projection = {}, sorting = { createdAt: -1 }) => {
+const cardFindQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -9,8 +9,13 @@ const cardFindQuery = async (filters = {}, projection = {}, sorting = { createdA
     //     email: /.*test_includes_value.*/,
     //     active: true
     // };
+    if (!filters) filters = {};
+    if (!projection) projection = { __v: 0 };
+    if (!sorting) sorting = { createdAt: -1 };
+    if (!limit) limit = resultLimit;
 
-    return await Card.find(filters, { __v: 0, ...projection })
+    return await Card.find(filters, projection)
+        .limit(limit)
         .sort(sorting)
         .then(data => {
             return {
@@ -31,7 +36,7 @@ const cardFindQuery = async (filters = {}, projection = {}, sorting = { createdA
         });
 };
 
-const cardFindDetailedQuery = async (filters = [], projection = {}, sorting = { createdAt: -1 }) => {
+const cardFindDetailedQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -44,7 +49,17 @@ const cardFindDetailedQuery = async (filters = [], projection = {}, sorting = { 
     //     {
     //         $match: { email: /.*localhost.com.*/ },
     //     },
+    //     {
+    //         username: { $in: [ 'berkay', 'mizrak' ] }
+    //     },
     // ];
+    if (!filters) filters = [];
+    if (!projection) projection = {};
+    if (!sorting) sorting = { createdAt: -1 };
+    if (!limit) limit = resultLimit;
+
+    // TODO - add pagination
+    const skip = 0;
 
     return await Card.aggregate([
         ...filters,
@@ -77,6 +92,8 @@ const cardFindDetailedQuery = async (filters = [], projection = {}, sorting = { 
                 },
             },
         },
+        { $limit: limit },
+        { $skip: skip },
         {
             $project: {
                 root: 0,
@@ -119,7 +136,7 @@ const cardCreateQuery = async body => {
         .save()
         .then(data => {
             return {
-                status: 200,
+                status: 201,
                 success: true,
                 message: 'Card created successfully',
                 data,
@@ -135,8 +152,8 @@ const cardCreateQuery = async body => {
         });
 };
 
-const cardUpdateQuery = async (filters, update, projection = {}) => {
-    return await Card.findOneAndUpdate(filters, update, { new: true, projection: { __v: 0, ...projection } })
+const cardUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
+    return await Card.findOneAndUpdate(filters, update, { new: true, projection: projection })
         .then(data => {
             return {
                 status: 200,
@@ -155,8 +172,8 @@ const cardUpdateQuery = async (filters, update, projection = {}) => {
         });
 };
 
-const cardDeleteQuery = async (filters, projection = {}) => {
-    return await Card.findOneAndDelete(filters, { projection: { __v: 0, ...projection } })
+const cardDeleteQuery = async (filters, projection = { __v: 0 }) => {
+    return await Card.findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,

@@ -30,14 +30,16 @@ app.use((req, res, next) => {
 
 // general interceptor for all requests
 app.use((serverResponse, req, res, next) => {
-    const { status, success, message, count, data } = serverResponse;
+    const { status, success, message, count, data, credentials } = serverResponse;
 
     logger.info(serverResponse);
 
     // Send response to client
     return status !== 200 && !success
         ? next(serverResponse) // if error, pass it to next middleware
-        : res.status(status || 200).send({ timestamp: new Date(), success, message, count, data });
+        : res
+              .status(status || 200)
+              .send({ timestamp: new Date(), success, message, count, data, credentials });
 });
 
 // error handler

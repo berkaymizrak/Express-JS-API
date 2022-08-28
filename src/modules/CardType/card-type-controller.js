@@ -1,5 +1,3 @@
-// Models
-import CardType from './card-type-model.js';
 import {
     cardTypeDeleteQuery,
     cardTypeCreateQuery,

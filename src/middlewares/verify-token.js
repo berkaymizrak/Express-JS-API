@@ -28,7 +28,7 @@ const verifyToken = async (req, res, next) => {
                 });
             } else {
                 req.decoded = decoded;
-                next();
+                return next();
             }
         });
     } else {
