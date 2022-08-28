@@ -1,7 +1,7 @@
 import Card from './card-model.js';
 import { resultLimit } from '../../config.js';
 
-const cardFindQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
+const cardFindQuery = async (filters, projection, sorting, limit) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -36,7 +36,7 @@ const cardFindQuery = async (filters = null, projection = null, sorting = null, 
         });
 };
 
-const cardFindDetailedQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
+const cardFindDetailedQuery = async (filters, projection, sorting, limit) => {
     // EXAMPLE
     // const filters = [
     //     {

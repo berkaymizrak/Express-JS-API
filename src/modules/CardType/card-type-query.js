@@ -1,7 +1,7 @@
 import CardType from './card-type-model.js';
 import { resultLimit } from '../../config.js';
 
-const cardTypesFindQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
+const cardTypesFindQuery = async (filters, projection, sorting, limit) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:

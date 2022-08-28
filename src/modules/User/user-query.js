@@ -1,7 +1,7 @@
 import User from './user-model.js';
 import { JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, resultLimit } from '../../config.js';
 
-const userFindQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
+const userFindQuery = async (filters, projection, sorting, limit) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -36,7 +36,7 @@ const userFindQuery = async (filters = null, projection = null, sorting = null, 
         });
 };
 
-const userFindDetailedQuery = async (filters = null, projection = null, sorting = null, limit = null) => {
+const userFindDetailedQuery = async (filters, projection, sorting, limit) => {
     // EXAMPLE
     // const filters = [
     //     {
