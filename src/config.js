@@ -31,7 +31,7 @@ const logFolder = 'logs/';
 const logger = createLogger({
     levels: logLevels,
     format: format.combine(format.timestamp(), format.json()),
-    transports: [new transports.File({ filename: logFolder + 'all.log' })],
+    transports: [new transports.File({ filename: logFolder + 'all.log' }), new transports.Console()],
     exceptionHandlers: [new transports.File({ filename: logFolder + 'exceptions.log' })],
     rejectionHandlers: [new transports.File({ filename: logFolder + 'rejections.log' })],
 });

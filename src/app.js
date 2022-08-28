@@ -48,7 +48,7 @@ app.use((err, req, res, next) => {
     res.locals.message = err.message;
     res.locals.error = env.development ? err : {};
 
-    return res.status(status || 500).send({ success, message, detailed_message });
+    return res.status(status || 500).send({ timestamp: new Date(), success, message, detailed_message });
 });
 
 app.listen(port, () => {

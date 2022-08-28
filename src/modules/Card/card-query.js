@@ -1,4 +1,5 @@
 import Card from './card-model.js';
+import mongoose from 'mongoose';
 
 const cardListQuery = async () => {
     return await Card.find({}, { __v: 0 })
@@ -22,47 +23,55 @@ const cardListQuery = async () => {
         });
 };
 
-const cardListDetailedQuery = async () => {
-    await Card.aggregate([
-        {
-            $lookup: {
-                from: 'cardtypes',
-                localField: 'card_type_id',
-                foreignField: '_id',
-                as: 'cardtype',
-            },
-        },
-        {
-            $unwind: {
-                path: '$cardtype',
-                preserveNullAndEmptyArrays: true,
-            },
-        },
-
-        {
-            $group: {
-                _id: '$_id',
-                root: { $mergeObjects: '$$ROOT' },
-                cardtype: { $first: '$cardtype' },
-            },
-        },
-        {
-            $replaceRoot: {
-                newRoot: {
-                    $mergeObjects: ['$root', '$$ROOT'],
+const cardListDetailedQuery = async id => {
+    const extraQuery = [];
+    if (id) {
+        extraQuery.push({
+            $match: { _id: mongoose.Types.ObjectId(id) },
+        });
+    }
+    return await Card.aggregate(
+        extraQuery.concat([
+            {
+                $lookup: {
+                    from: 'cardtypes',
+                    localField: 'card_type_id',
+                    foreignField: '_id',
+                    as: 'cardtype',
                 },
             },
-        },
-        {
-            $project: {
-                root: 0,
-                __v: 0,
-                'cardtype.__v': 0,
-                active: 0,
-                'cardtype.active': 0,
+            {
+                $unwind: {
+                    path: '$cardtype',
+                    preserveNullAndEmptyArrays: true,
+                },
             },
-        },
-    ])
+
+            {
+                $group: {
+                    _id: '$_id',
+                    root: { $mergeObjects: '$$ROOT' },
+                    cardtype: { $first: '$cardtype' },
+                },
+            },
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: ['$root', '$$ROOT'],
+                    },
+                },
+            },
+            {
+                $project: {
+                    root: 0,
+                    __v: 0,
+                    'cardtype.__v': 0,
+                    active: 0,
+                    'cardtype.active': 0,
+                },
+            },
+        ])
+    )
         .sort({ createdAt: -1 })
         .then(data => {
             return {
@@ -118,7 +127,6 @@ const cardGetQuery = async id => {
                     status: 200,
                     success: false,
                     message: 'Card not found',
-                    data: null,
                 };
             } else {
                 return {
@@ -139,6 +147,34 @@ const cardGetQuery = async id => {
         });
 };
 
+const cardUpdateQuery = async id => {
+    return await Card.findByIdAndUpdate(id, { $new: true })
+        .then(data => {
+            if (!data) {
+                return {
+                    status: 200,
+                    success: false,
+                    message: 'Card not found',
+                };
+            } else {
+                return {
+                    status: 200,
+                    success: true,
+                    message: 'Card updated successfully',
+                    data,
+                };
+            }
+        })
+        .catch(err => {
+            return {
+                status: 500,
+                success: false,
+                message: 'Error deleting card',
+                detailed_message: err.message,
+            };
+        });
+};
+
 const cardDeleteQuery = async id => {
     return await Card.findOneAndDelete(id)
         .then(data => {
@@ -147,7 +183,6 @@ const cardDeleteQuery = async id => {
                     status: 200,
                     success: false,
                     message: 'Card not found',
-                    data: null,
                 };
             } else {
                 return {
@@ -168,4 +203,11 @@ const cardDeleteQuery = async id => {
         });
 };
 
-export { cardListQuery, cardListDetailedQuery, cardCreateQuery, cardGetQuery, cardDeleteQuery };
+export {
+    cardListQuery,
+    cardListDetailedQuery,
+    cardCreateQuery,
+    cardGetQuery,
+    cardUpdateQuery,
+    cardDeleteQuery,
+};

@@ -23,7 +23,7 @@ const userListQuery = async () => {
         });
 };
 
-const userFindByIdQuery = async id => {
+const userGetQuery = async id => {
     return await User.findById({ _id: id }, { __v: 0, password: 0 })
         .then(data => {
             if (!data) {
@@ -31,7 +31,6 @@ const userFindByIdQuery = async id => {
                     status: 200,
                     success: false,
                     message: 'User not found',
-                    data,
                 };
             } else {
                 return {
@@ -156,15 +155,14 @@ const userListDetailedQuery = async id => {
         });
 };
 
-const userDeleteQuery = async id => {
-    return await User.findOneAndDelete(id)
+const userUpdateQuery = async id => {
+    return await User.findByIdAndUpdate(id, { $new: true })
         .then(data => {
             if (!data) {
                 return {
                     status: 200,
                     success: false,
                     message: 'User not found',
-                    data,
                 };
             } else {
                 return {
@@ -185,4 +183,32 @@ const userDeleteQuery = async id => {
         });
 };
 
-export { userListQuery, userFindByIdQuery, userListDetailedQuery, userDeleteQuery };
+const userDeleteQuery = async id => {
+    return await User.findOneAndDelete(id)
+        .then(data => {
+            if (!data) {
+                return {
+                    status: 200,
+                    success: false,
+                    message: 'User not found',
+                };
+            } else {
+                return {
+                    status: 200,
+                    success: true,
+                    message: 'User deleted successfully',
+                    data,
+                };
+            }
+        })
+        .catch(err => {
+            return {
+                status: 500,
+                success: false,
+                message: 'Error deleting user',
+                detailed_message: err.message,
+            };
+        });
+};
+
+export { userListQuery, userGetQuery, userListDetailedQuery, userUpdateQuery, userDeleteQuery };
