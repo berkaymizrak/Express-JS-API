@@ -1,5 +1,5 @@
 import express from 'express';
-const userRouter = express.Router();
+const cardTypeRouter = express.Router();
 import {
     getCardType,
     createCardType,
@@ -7,12 +7,13 @@ import {
     updateCardType,
     deleteCardType,
 } from './card-type-controller.js';
+import setPaginationParams from '../../middlewares/pagination-params.js';
 
-userRouter
-    .get('/card_types', listCardTypes)
-    .post('/card_types', createCardType)
+cardTypeRouter
+    .get('/card_types', setPaginationParams, listCardTypes)
+    .post('/card_types', setPaginationParams, createCardType)
     .get('/card_types/:id', getCardType)
     .put('/card_types/:id', updateCardType)
     .delete('/card_types/:id', deleteCardType);
 
-export default userRouter;
+export default cardTypeRouter;

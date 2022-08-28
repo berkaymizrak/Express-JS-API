@@ -6,13 +6,13 @@ import {
 } from './card-type-query.js';
 
 const listCardTypes = async (req, res, next) => {
-    return next(await cardTypesFindQuery());
+    return next(await cardTypesFindQuery(req.query));
 };
 
 const getCardType = async (req, res, next) => {
     const { id } = req.params;
     const filters = { _id: id };
-    return next(await cardTypesFindQuery(filters));
+    return next(await cardTypesFindQuery(req.query, filters));
 };
 
 const createCardType = async (req, res, next) => {

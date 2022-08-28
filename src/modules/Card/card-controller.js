@@ -8,17 +8,17 @@ import {
 import mongoose from 'mongoose';
 
 const listCards = async (req, res, next) => {
-    return next(await cardFindQuery());
+    return next(await cardFindQuery(req.query));
 };
 
 const listDetailedCards = async (req, res, next) => {
-    return next(await cardFindDetailedQuery());
+    return next(await cardFindDetailedQuery(req.query));
 };
 
 const getCard = async (req, res, next) => {
     const { id } = req.params;
     const filters = { _id: id };
-    return next(await cardFindQuery(filters));
+    return next(await cardFindQuery(req.query, filters));
 };
 
 const getDetailedCard = async (req, res, next) => {
@@ -28,7 +28,7 @@ const getDetailedCard = async (req, res, next) => {
             $match: { _id: mongoose.Types.ObjectId(id) },
         },
     ];
-    let response = await cardFindDetailedQuery(filters);
+    let response = await cardFindDetailedQuery(req.query, filters);
     let { success, data } = response;
     if (success) {
         data = data.find(elem => elem._id == id);

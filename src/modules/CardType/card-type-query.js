@@ -1,7 +1,6 @@
 import CardType from './card-type-model.js';
-import { resultLimit } from '../../config.js';
 
-const cardTypesFindQuery = async (filters, projection, sorting, limit) => {
+const cardTypesFindQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -12,19 +11,33 @@ const cardTypesFindQuery = async (filters, projection, sorting, limit) => {
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0 };
     if (!sorting) sorting = { createdAt: -1 };
-    if (!limit) limit = resultLimit;
+    if (!limit) limit = queryParams.limit;
+    if (!skip) skip = queryParams.skip;
 
     return await CardType.find(filters, projection)
         .limit(limit)
+        .skip(skip)
         .sort(sorting)
-        .then(data => {
-            return {
-                status: 200,
-                success: true,
-                message: 'Card Types retrieved successfully',
-                count: data.length,
-                data,
-            };
+        .then(async data => {
+            return await CardType.count(filters)
+                .then(total_count => {
+                    return {
+                        status: 200,
+                        success: true,
+                        message: 'Card Types retrieved successfully',
+                        total_count,
+                        count: data.length,
+                        data,
+                    };
+                })
+                .catch(err => {
+                    return {
+                        status: 500,
+                        success: false,
+                        message: 'Error fetching card types',
+                        detailed_message: err.message,
+                    };
+                });
         })
         .catch(err => {
             return {

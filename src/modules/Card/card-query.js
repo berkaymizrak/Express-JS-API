@@ -1,7 +1,6 @@
 import Card from './card-model.js';
-import { resultLimit } from '../../config.js';
 
-const cardFindQuery = async (filters, projection, sorting, limit) => {
+const cardFindQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -12,19 +11,33 @@ const cardFindQuery = async (filters, projection, sorting, limit) => {
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0 };
     if (!sorting) sorting = { createdAt: -1 };
-    if (!limit) limit = resultLimit;
+    if (!limit) limit = queryParams.limit;
+    if (!skip) skip = queryParams.skip;
 
     return await Card.find(filters, projection)
         .limit(limit)
+        .skip(skip)
         .sort(sorting)
-        .then(data => {
-            return {
-                status: 200,
-                success: true,
-                message: 'Cards retrieved successfully',
-                count: data.length,
-                data,
-            };
+        .then(async data => {
+            return await Card.count(filters)
+                .then(total_count => {
+                    return {
+                        status: 200,
+                        success: true,
+                        message: 'Cards retrieved successfully',
+                        total_count,
+                        count: data.length,
+                        data,
+                    };
+                })
+                .catch(err => {
+                    return {
+                        status: 500,
+                        success: false,
+                        message: 'Error fetching cards',
+                        detailed_message: err.message,
+                    };
+                });
         })
         .catch(err => {
             return {
@@ -36,7 +49,7 @@ const cardFindQuery = async (filters, projection, sorting, limit) => {
         });
 };
 
-const cardFindDetailedQuery = async (filters, projection, sorting, limit) => {
+const cardFindDetailedQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -56,10 +69,8 @@ const cardFindDetailedQuery = async (filters, projection, sorting, limit) => {
     if (!filters) filters = [];
     if (!projection) projection = {};
     if (!sorting) sorting = { createdAt: -1 };
-    if (!limit) limit = resultLimit;
-
-    // TODO - add pagination
-    const skip = 0;
+    if (!limit) limit = queryParams.limit;
+    if (!skip) skip = queryParams.skip;
 
     return await Card.aggregate([
         ...filters,
@@ -106,14 +117,26 @@ const cardFindDetailedQuery = async (filters, projection, sorting, limit) => {
         },
     ])
         .sort(sorting)
-        .then(data => {
-            return {
-                status: 200,
-                success: true,
-                message: 'Cards retrieved successfully',
-                count: data.length,
-                data,
-            };
+        .then(async data => {
+            return await Card.count(filters)
+                .then(total_count => {
+                    return {
+                        status: 200,
+                        success: true,
+                        message: 'Cards retrieved successfully',
+                        total_count,
+                        count: data.length,
+                        data,
+                    };
+                })
+                .catch(err => {
+                    return {
+                        status: 500,
+                        success: false,
+                        message: 'Error fetching cards',
+                        detailed_message: err.message,
+                    };
+                });
         })
         .catch(err => {
             return {

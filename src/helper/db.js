@@ -1,27 +1,27 @@
 import mongoose from 'mongoose';
-import { mongoUri } from '../config.js';
+import { logger, mongoUri } from '../config.js';
 
 const dbConnection = () => {
     mongoose.connect(mongoUri, { useNewUrlParser: true });
 
     mongoose.connection
         .on('open', () => {
-            console.log('MongoDB connection opened');
+            logger.info('MongoDB connection opened');
         })
         .on('error', err => {
-            console.log(err);
+            logger.error(err);
         })
         .on('disconnected', () => {
-            console.log('MongoDB disconnected');
+            logger.warning('MongoDB disconnected');
         })
         .on('close', () => {
-            console.log('MongoDB closed');
+            logger.warning('MongoDB closed');
         })
         .on('reconnected', () => {
-            console.log('MongoDB reconnected');
+            logger.info('MongoDB reconnected');
         })
         .on('connected', () => {
-            console.log('MongoDB connected');
+            logger.info('MongoDB connected');
         });
 };
 

@@ -1,7 +1,6 @@
 import User from './user-model.js';
-import { JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, resultLimit } from '../../config.js';
 
-const userFindQuery = async (filters, projection, sorting, limit) => {
+const userFindQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -12,19 +11,33 @@ const userFindQuery = async (filters, projection, sorting, limit) => {
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0, password: 0 };
     if (!sorting) sorting = { createdAt: -1 };
-    if (!limit) limit = resultLimit;
+    if (!limit) limit = queryParams.limit;
+    if (!skip) skip = queryParams.skip;
 
     return await User.find(filters, projection)
         .limit(limit)
+        .skip(skip)
         .sort(sorting)
-        .then(data => {
-            return {
-                status: 200,
-                success: true,
-                message: 'Users retrieved successfully',
-                count: data.length,
-                data,
-            };
+        .then(async data => {
+            return await User.count(filters)
+                .then(total_count => {
+                    return {
+                        status: 200,
+                        success: true,
+                        message: 'Users retrieved successfully',
+                        total_count,
+                        count: data.length,
+                        data,
+                    };
+                })
+                .catch(err => {
+                    return {
+                        status: 500,
+                        success: false,
+                        message: 'Error fetching users',
+                        detailed_message: err.message,
+                    };
+                });
         })
         .catch(err => {
             return {
@@ -36,7 +49,7 @@ const userFindQuery = async (filters, projection, sorting, limit) => {
         });
 };
 
-const userFindDetailedQuery = async (filters, projection, sorting, limit) => {
+const userFindDetailedQuery = async (queryParams, filters, projection, sorting, limit, skip) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -56,10 +69,8 @@ const userFindDetailedQuery = async (filters, projection, sorting, limit) => {
     if (!filters) filters = [];
     if (!projection) projection = { password: 0 };
     if (!sorting) sorting = { createdAt: -1 };
-    if (!limit) limit = resultLimit;
-
-    // TODO - add pagination
-    const skip = 0;
+    if (!limit) limit = queryParams.limit;
+    if (!skip) skip = queryParams.skip;
 
     return await User.aggregate([
         ...filters,
@@ -123,7 +134,7 @@ const userFindDetailedQuery = async (filters, projection, sorting, limit) => {
                 },
             },
         },
-        { $limit: skip + limit },
+        { $limit: limit },
         { $skip: skip },
         {
             $project: {
@@ -140,14 +151,26 @@ const userFindDetailedQuery = async (filters, projection, sorting, limit) => {
         },
     ])
         .sort(sorting)
-        .then(data => {
-            return {
-                status: 200,
-                success: true,
-                message: 'Users retrieved successfully',
-                count: data.length,
-                data,
-            };
+        .then(async data => {
+            return await User.count(filters)
+                .then(total_count => {
+                    return {
+                        status: 200,
+                        success: true,
+                        message: 'Users retrieved successfully',
+                        total_count,
+                        count: data.length,
+                        data,
+                    };
+                })
+                .catch(err => {
+                    return {
+                        status: 500,
+                        success: false,
+                        message: 'Error fetching users',
+                        detailed_message: err.message,
+                    };
+                });
         })
         .catch(err => {
             return {

@@ -1,5 +1,5 @@
 import express from 'express';
-const userRouter = express.Router();
+const cardRouter = express.Router();
 import {
     listCards,
     listDetailedCards,
@@ -9,14 +9,15 @@ import {
     updateCard,
     deleteCard,
 } from './card-controller.js';
+import setPaginationParams from '../../middlewares/pagination-params.js';
 
-userRouter
-    .get('/cards', listCards)
-    .get('/cards/detailed', listDetailedCards)
+cardRouter
+    .get('/cards', setPaginationParams, listCards)
+    .get('/cards/detailed', setPaginationParams, listDetailedCards)
     .get('/cards/detailed/:id', getDetailedCard)
     .get('/cards/:id', getCard)
     .post('/cards', createCard)
     .put('/cards/:id', updateCard)
     .delete('/cards/:id', deleteCard);
 
-export default userRouter;
+export default cardRouter;
