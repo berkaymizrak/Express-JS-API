@@ -31,27 +31,32 @@ app.use((req, res, next) => {
 const createPaging = (req, total_count) => {
     // Set pagination urls
     // Calculated req.query params are set in pagination-params.js
-    const { current_page_number, previous_page_number, next_page_number, limit } = req.query;
+    let { current_page_number, previous_page_number, next_page_number, limit } = req.query;
 
     const max_page_number = Math.ceil(total_count / limit);
     const basePage = req.protocol + '://' + req.get('host') + req.path;
-    const page = basePage + '?page=' + current_page_number + '&limit=' + limit;
+    const current_page = basePage + '?page=' + current_page_number + '&limit=' + limit;
 
     const first_page = basePage + '?page=1&limit=' + limit;
     const last_page = basePage + '?page=' + max_page_number + '&limit=' + limit;
 
-    let next_page = max_page_number > current_page_number ? basePage + '?page=' + next_page_number : null;
-    if (next_page) next_page = next_page + '&limit=' + limit;
+    next_page_number = max_page_number > current_page_number ? next_page_number : null;
+    let next_page = next_page_number ? basePage + '?page=' + next_page_number + '&limit=' + limit : null;
+    let previous_page = previous_page_number
+        ? basePage + '?page=' + previous_page_number + '&limit=' + limit
+        : null;
 
-    let previous_page = current_page_number > 1 ? basePage + '?page=' + previous_page_number : null;
-    if (previous_page) previous_page = previous_page + '&limit=' + limit;
-
-    const number = { current_page_number, previous_page_number, next_page_number, max_page_number };
+    const number = {
+        previous_page_number,
+        current_page_number,
+        next_page_number,
+        max_page_number,
+    };
 
     return {
         first_page,
         previous_page,
-        page,
+        current_page,
         next_page,
         last_page,
         number,
