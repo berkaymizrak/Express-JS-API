@@ -1,7 +1,7 @@
 {
-  "name": "nfc-card",
+  "name": "express-js-api",
   "version": "1.0.0",
-  "description": "NFC Card Application",
+  "description": "Express JS API",
   "main": "src/app.js",
   "private": true,
   "type": "module",
