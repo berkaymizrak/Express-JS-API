@@ -279,7 +279,7 @@ dist
 
 .git
 
-
+index-compiled.js
 
 media/
 staticfiles/
