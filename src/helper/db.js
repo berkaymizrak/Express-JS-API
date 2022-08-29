@@ -12,10 +12,10 @@ const dbConnection = () => {
             logger.error(err);
         })
         .on('disconnected', () => {
-            logger.warning('MongoDB disconnected');
+            logger.warn('MongoDB disconnected');
         })
         .on('close', () => {
-            logger.warning('MongoDB closed');
+            logger.warn('MongoDB closed');
         })
         .on('reconnected', () => {
             logger.info('MongoDB reconnected');
