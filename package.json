@@ -8,6 +8,7 @@
   "scripts": {
     "start": "yarn start:prod",
     "start:dev": "nodemon",
+    "prestart:dev": "yarn build",
     "start:prod": "node ./src/index-compiled.js",
     "build": "babel ./src/app.js --out-file ./src/index-compiled.js",
     "prestart:prod": "yarn build"
