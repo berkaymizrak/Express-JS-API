@@ -2,7 +2,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const mongoUri = `${process.env.DB_HOST}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}/${process.env.DB_NAME}?${process.env.DB_CLUSTER_CONFIG}`;
+const mongoUri =
+    process.env.MONGODB_URI ||
+    `${process.env.DB_HOST}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}/${process.env.DB_NAME}?${process.env.DB_CLUSTER_CONFIG}`;
 
 const port = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
@@ -29,14 +31,21 @@ const logLevels = {
     trace: 5,
 };
 const logFolder = 'logs/';
+let exceptionHandlers = [];
+let rejectionHandlers = [];
+let transportsHandlers = [];
+if (env.development) {
+    exceptionHandlers.push(new transports.File({ filename: logFolder + 'exceptions.log' }));
+    rejectionHandlers.push(new transports.File({ filename: logFolder + 'rejections.log' }));
+    transportsHandlers.push(new transports.File({ filename: logFolder + 'all.log' }));
+} else {
+    transportsHandlers.push(new transports.Console());
+}
 const logger = createLogger({
     levels: logLevels,
-    format: format.combine(format.timestamp(), format.json()),
-    transports: [
-        new transports.File({ filename: logFolder + 'all.log' }),
-        // new transports.Console()
-    ],
-    exceptionHandlers: [new transports.File({ filename: logFolder + 'exceptions.log' })],
-    rejectionHandlers: [new transports.File({ filename: logFolder + 'rejections.log' })],
+    format: format.combine(format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), format.json()),
+    transports: transportsHandlers,
+    exceptionHandlers,
+    rejectionHandlers,
 });
 export { logger, mongoUri, port, JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, env, resultLimit };
