@@ -280,6 +280,7 @@ dist
 .git
 
 index-compiled.js
+.vercel
 
 media/
 staticfiles/
