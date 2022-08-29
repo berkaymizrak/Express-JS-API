@@ -279,7 +279,7 @@ dist
 
 .git
 
-index-compiled.js
+#index-compiled.js
 .vercel
 
 media/
