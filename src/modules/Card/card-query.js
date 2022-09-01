@@ -1,4 +1,4 @@
-import Cards from './card-model.js';
+import cards from './card-model.js';
 import { resultLimit } from '../../config.js';
 
 const cardFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
@@ -15,12 +15,14 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await Cards.find(filters, projection)
+    return await cards
+        .find(filters, projection)
         .limit(limit)
         .skip(skip)
         .sort(sorting)
         .then(async data => {
-            return await Cards.count(filters)
+            return await cards
+                .count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -73,53 +75,55 @@ const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await Cards.aggregate([
-        ...filters,
-        {
-            $lookup: {
-                from: 'cardtypes',
-                localField: 'cardTypeId',
-                foreignField: '_id',
-                as: 'cardtype',
-            },
-        },
-        {
-            $unwind: {
-                path: '$cardtype',
-                preserveNullAndEmptyArrays: true,
-            },
-        },
-
-        {
-            $group: {
-                _id: '$_id',
-                root: { $mergeObjects: '$$ROOT' },
-                cardtype: { $first: '$cardtype' },
-            },
-        },
-        {
-            $replaceRoot: {
-                newRoot: {
-                    $mergeObjects: ['$root', '$$ROOT'],
+    return await cards
+        .aggregate([
+            ...filters,
+            {
+                $lookup: {
+                    from: 'cardtypes',
+                    localField: 'cardTypeId',
+                    foreignField: '_id',
+                    as: 'cardtype',
                 },
             },
-        },
-        { $limit: limit },
-        { $skip: skip },
-        {
-            $project: {
-                root: 0,
-                __v: 0,
-                'cardtype.__v': 0,
-                active: 0,
-                'cardtype.active': 0,
-                ...projection,
+            {
+                $unwind: {
+                    path: '$cardtype',
+                    preserveNullAndEmptyArrays: true,
+                },
             },
-        },
-    ])
+
+            {
+                $group: {
+                    _id: '$_id',
+                    root: { $mergeObjects: '$$ROOT' },
+                    cardtype: { $first: '$cardtype' },
+                },
+            },
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: ['$root', '$$ROOT'],
+                    },
+                },
+            },
+            { $limit: limit },
+            { $skip: skip },
+            {
+                $project: {
+                    root: 0,
+                    __v: 0,
+                    'cardtype.__v': 0,
+                    active: 0,
+                    'cardtype.active': 0,
+                    ...projection,
+                },
+            },
+        ])
         .sort(sorting)
         .then(async data => {
-            return await Cards.count(filters)
+            return await cards
+                .count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -151,7 +155,7 @@ const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting
 
 const cardCreateQuery = async body => {
     const { name, userId, cardTypeId, urlPath } = body;
-    return await new Cards({
+    return await new cards({
         name,
         userId,
         cardTypeId,
@@ -177,7 +181,8 @@ const cardCreateQuery = async body => {
 };
 
 const cardUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
-    return await Cards.findOneAndUpdate(filters, update, { new: true, projection: projection })
+    return await cards
+        .findOneAndUpdate(filters, update, { new: true, projection: projection })
         .then(data => {
             return {
                 status: 200,
@@ -197,7 +202,8 @@ const cardUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
 };
 
 const cardDeleteQuery = async (filters, projection = { __v: 0 }) => {
-    return await Cards.findOneAndDelete(filters, { projection: projection })
+    return await cards
+        .findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,

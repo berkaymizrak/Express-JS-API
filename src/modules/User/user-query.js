@@ -1,4 +1,4 @@
-import Users from './user-model.js';
+import users from './user-model.js';
 import { resultLimit } from '../../config.js';
 
 const userFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
@@ -15,12 +15,14 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await Users.find(filters, projection)
+    return await users
+        .find(filters, projection)
         .limit(limit)
         .skip(skip)
         .sort(sorting)
         .then(async data => {
-            return await Users.count(filters)
+            return await users
+                .count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -73,87 +75,89 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await Users.aggregate([
-        ...filters,
-        {
-            $lookup: {
-                from: 'cards',
-                localField: '_id',
-                foreignField: 'userId',
-                as: 'cards',
+    return await users
+        .aggregate([
+            ...filters,
+            {
+                $lookup: {
+                    from: 'cards',
+                    localField: '_id',
+                    foreignField: 'userId',
+                    as: 'cards',
+                },
             },
-        },
-        {
-            $unwind: {
-                path: '$cards',
-                preserveNullAndEmptyArrays: true,
+            {
+                $unwind: {
+                    path: '$cards',
+                    preserveNullAndEmptyArrays: true,
+                },
             },
-        },
 
-        {
-            $lookup: {
-                from: 'cardtypes',
-                localField: 'cards.cardTypeId',
-                foreignField: '_id',
-                as: 'cards.cardtype',
+            {
+                $lookup: {
+                    from: 'cardtypes',
+                    localField: 'cards.cardTypeId',
+                    foreignField: '_id',
+                    as: 'cards.cardtype',
+                },
             },
-        },
-        {
-            $unwind: {
-                path: '$cards.cardtype',
-                preserveNullAndEmptyArrays: true,
+            {
+                $unwind: {
+                    path: '$cards.cardtype',
+                    preserveNullAndEmptyArrays: true,
+                },
             },
-        },
 
-        {
-            $group: {
-                _id: '$_id',
-                root: { $mergeObjects: '$$ROOT' },
-                cards: { $push: '$cards' },
+            {
+                $group: {
+                    _id: '$_id',
+                    root: { $mergeObjects: '$$ROOT' },
+                    cards: { $push: '$cards' },
+                },
             },
-        },
-        {
-            $addFields: {
-                cards: {
-                    $filter: {
-                        input: '$cards',
-                        cond: { $ifNull: ['$$this._id', false] },
+            {
+                $addFields: {
+                    cards: {
+                        $filter: {
+                            input: '$cards',
+                            cond: { $ifNull: ['$$this._id', false] },
+                        },
                     },
                 },
             },
-        },
-        {
-            $addFields: {
-                card_count: { $size: '$cards' },
-                fullName: { $concat: ['$firstName', ' ', '$lastName'] },
-            },
-        },
-        {
-            $replaceRoot: {
-                newRoot: {
-                    $mergeObjects: ['$root', '$$ROOT'],
+            {
+                $addFields: {
+                    card_count: { $size: '$cards' },
+                    fullName: { $concat: ['$firstName', ' ', '$lastName'] },
                 },
             },
-        },
-        { $limit: limit },
-        { $skip: skip },
-        {
-            $project: {
-                // Hide selected columns from the response
-                root: 0,
-                __v: 0,
-                'cards.__v': 0,
-                'cards.cardtype.__v': 0,
-                active: 0,
-                'cards.active': 0,
-                'cards.cardtype.active': 0,
-                ...projection,
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: ['$root', '$$ROOT'],
+                    },
+                },
             },
-        },
-    ])
+            { $limit: limit },
+            { $skip: skip },
+            {
+                $project: {
+                    // Hide selected columns from the response
+                    root: 0,
+                    __v: 0,
+                    'cards.__v': 0,
+                    'cards.cardtype.__v': 0,
+                    active: 0,
+                    'cards.active': 0,
+                    'cards.cardtype.active': 0,
+                    ...projection,
+                },
+            },
+        ])
         .sort(sorting)
         .then(async data => {
-            return await Users.count(filters)
+            return await users
+                .count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -185,7 +189,7 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
 
 const userCreateQuery = async body => {
     const { username, firstName, lastName, email, password } = body;
-    return await new Users({
+    return await new users({
         username,
         firstName,
         lastName,
@@ -212,10 +216,11 @@ const userCreateQuery = async body => {
 };
 
 const userUpdateQuery = async (filters, update, projection = { __v: 0, password: 0 }) => {
-    return await Users.findOneAndUpdate(filters, update, {
-        new: true,
-        projection: projection,
-    })
+    return await users
+        .findOneAndUpdate(filters, update, {
+            new: true,
+            projection: projection,
+        })
         .then(data => {
             return {
                 status: 200,
@@ -235,7 +240,8 @@ const userUpdateQuery = async (filters, update, projection = { __v: 0, password:
 };
 
 const userDeleteQuery = async (filters, projection = { __v: 0, password: 0 }) => {
-    return await Users.findOneAndDelete(filters, { projection: projection })
+    return await users
+        .findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,

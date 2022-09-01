@@ -10,5 +10,5 @@ const cardTypeSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-const CardTypes = mongoose.model('CardTypes', cardTypeSchema);
-export default CardTypes;
+const cardTypes = mongoose.model('cardTypes', cardTypeSchema);
+export default cardTypes;
