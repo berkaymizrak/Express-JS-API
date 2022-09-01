@@ -1,4 +1,4 @@
-import CardType from './card-type-model.js';
+import CardTypes from './card-type-model.js';
 import { resultLimit } from '../../config.js';
 
 const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
@@ -15,12 +15,12 @@ const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, l
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await CardType.find(filters, projection)
+    return await CardTypes.find(filters, projection)
         .limit(limit)
         .skip(skip)
         .sort(sorting)
         .then(async data => {
-            return await CardType.count(filters)
+            return await CardTypes.count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -52,7 +52,7 @@ const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, l
 
 const cardTypeCreateQuery = async body => {
     const { name, icon, base_url } = body;
-    return await new CardType({
+    return await new CardTypes({
         name,
         icon,
         base_url,
@@ -77,7 +77,7 @@ const cardTypeCreateQuery = async body => {
 };
 
 const cardTypeUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
-    return await CardType.findOneAndUpdate(filters, { new: true, projection: projection })
+    return await CardTypes.findOneAndUpdate(filters, { new: true, projection: projection })
         .then(data => {
             return {
                 status: 200,
@@ -97,7 +97,7 @@ const cardTypeUpdateQuery = async (filters, update, projection = { __v: 0 }) => 
 };
 
 const cardTypeDeleteQuery = async (filters, projection = { __v: 0 }) => {
-    return await CardType.findOneAndDelete(filters, { projection: projection })
+    return await CardTypes.findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,

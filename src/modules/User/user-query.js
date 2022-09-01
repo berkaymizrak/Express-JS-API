@@ -1,4 +1,4 @@
-import User from './user-model.js';
+import Users from './user-model.js';
 import { resultLimit } from '../../config.js';
 
 const userFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
@@ -15,12 +15,12 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await User.find(filters, projection)
+    return await Users.find(filters, projection)
         .limit(limit)
         .skip(skip)
         .sort(sorting)
         .then(async data => {
-            return await User.count(filters)
+            return await Users.count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -73,13 +73,13 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await User.aggregate([
+    return await Users.aggregate([
         ...filters,
         {
             $lookup: {
                 from: 'cards',
                 localField: '_id',
-                foreignField: 'user_id',
+                foreignField: 'userId',
                 as: 'cards',
             },
         },
@@ -93,7 +93,7 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
         {
             $lookup: {
                 from: 'cardtypes',
-                localField: 'cards.card_type_id',
+                localField: 'cards.cardTypeId',
                 foreignField: '_id',
                 as: 'cards.cardtype',
             },
@@ -153,7 +153,7 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
     ])
         .sort(sorting)
         .then(async data => {
-            return await User.count(filters)
+            return await Users.count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -185,7 +185,7 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
 
 const userCreateQuery = async body => {
     const { username, firstName, lastName, email, password } = body;
-    return await new User({
+    return await new Users({
         username,
         firstName,
         lastName,
@@ -212,7 +212,7 @@ const userCreateQuery = async body => {
 };
 
 const userUpdateQuery = async (filters, update, projection = { __v: 0, password: 0 }) => {
-    return await User.findOneAndUpdate(filters, update, {
+    return await Users.findOneAndUpdate(filters, update, {
         new: true,
         projection: projection,
     })
@@ -235,7 +235,7 @@ const userUpdateQuery = async (filters, update, projection = { __v: 0, password:
 };
 
 const userDeleteQuery = async (filters, projection = { __v: 0, password: 0 }) => {
-    return await User.findOneAndDelete(filters, { projection: projection })
+    return await Users.findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,

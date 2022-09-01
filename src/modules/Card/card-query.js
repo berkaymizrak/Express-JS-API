@@ -1,4 +1,4 @@
-import Card from './card-model.js';
+import Cards from './card-model.js';
 import { resultLimit } from '../../config.js';
 
 const cardFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
@@ -15,12 +15,12 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await Card.find(filters, projection)
+    return await Cards.find(filters, projection)
         .limit(limit)
         .skip(skip)
         .sort(sorting)
         .then(async data => {
-            return await Card.count(filters)
+            return await Cards.count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -73,12 +73,12 @@ const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
-    return await Card.aggregate([
+    return await Cards.aggregate([
         ...filters,
         {
             $lookup: {
                 from: 'cardtypes',
-                localField: 'card_type_id',
+                localField: 'cardTypeId',
                 foreignField: '_id',
                 as: 'cardtype',
             },
@@ -119,7 +119,7 @@ const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting
     ])
         .sort(sorting)
         .then(async data => {
-            return await Card.count(filters)
+            return await Cards.count(filters)
                 .then(total_count => {
                     return {
                         status: 200,
@@ -150,12 +150,12 @@ const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting
 };
 
 const cardCreateQuery = async body => {
-    const { name, user_id, card_type_id, url_path } = body;
-    return await new Card({
+    const { name, userId, cardTypeId, urlPath } = body;
+    return await new Cards({
         name,
-        user_id,
-        card_type_id,
-        url_path,
+        userId,
+        cardTypeId,
+        urlPath,
     })
         .save()
         .then(data => {
@@ -177,7 +177,7 @@ const cardCreateQuery = async body => {
 };
 
 const cardUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
-    return await Card.findOneAndUpdate(filters, update, { new: true, projection: projection })
+    return await Cards.findOneAndUpdate(filters, update, { new: true, projection: projection })
         .then(data => {
             return {
                 status: 200,
@@ -197,7 +197,7 @@ const cardUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
 };
 
 const cardDeleteQuery = async (filters, projection = { __v: 0 }) => {
-    return await Card.findOneAndDelete(filters, { projection: projection })
+    return await Cards.findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,

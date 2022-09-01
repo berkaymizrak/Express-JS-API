@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const CardTypeSchema = new Schema({
+const cardTypeSchema = new Schema({
     name: { type: String, required: true },
     icon: String,
     base_url: String,
@@ -10,5 +10,5 @@ const CardTypeSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-const CardType = mongoose.model('CardType', CardTypeSchema);
-export default CardType;
+const CardTypes = mongoose.model('CardTypes', cardTypeSchema);
+export default CardTypes;

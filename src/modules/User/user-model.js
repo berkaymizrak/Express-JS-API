@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 import bcryptjs from 'bcryptjs';
 
-const UserSchema = new Schema({
+const userSchema = new Schema({
     username: { type: String, required: true, minLength: 3, maxLength: 200, unique: true, dropDups: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -19,7 +19,7 @@ const UserSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-UserSchema.pre('save', function (next) {
+userSchema.pre('save', function (next) {
     const user = this;
     if (user.isModified('email') || user.isNew) {
         user.email = user.email.toLowerCase();
@@ -30,11 +30,11 @@ UserSchema.pre('save', function (next) {
             bcryptjs.hash(user.password, salt, (err, hash) => {
                 if (err) return next(err);
                 user.password = hash;
-                return next();
             });
         });
     }
+    return next();
 });
 
-const User = mongoose.model('User', UserSchema);
-export default User;
+const Users = mongoose.model('Users', userSchema);
+export default Users;
