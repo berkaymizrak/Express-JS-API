@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, frontendUrl } from '../../config.js';
 import { userCreateQuery, userFindQuery } from '../User/user-query.js';
@@ -67,34 +66,36 @@ const loginUser = async (req, res, next) => {
     const filters = { username };
     const projection = { __v: 0 };
     return await userFindQuery(req.query, { filters, projection, limit: 1 })
-        .then(async responseFindQuery => {
+        .then(responseFindQuery => {
             if (!responseFindQuery.success && responseFindQuery.status !== 200)
                 return next(responseFindQuery);
             if (responseFindQuery.data.length > 0) {
                 const responseData = responseFindQuery.data[0];
-                bcrypt.compare(password, responseData.password, (err, result) => {
-                    if (err)
+                return responseData.comparePassword(password, (err, isMatch) => {
+                    if (err) {
                         return next({
                             status: 500,
                             success: false,
-                            message: 'Error comparing password',
+                            message: 'Error logging in',
                             detailed_message: err.message,
                         });
-                    if (!result)
+                    }
+                    if (isMatch) {
+                        responseData.password = undefined;
+                        return next({
+                            status: 200,
+                            success: true,
+                            message: 'User logged in successfully',
+                            data: responseData,
+                            credentials: createCredentials(username),
+                        });
+                    } else {
                         return next({
                             status: 401,
                             success: false,
-                            message: 'Incorrect Password or Username',
+                            message: 'Incorrect password',
                         });
-
-                    responseData.password = undefined;
-                    return next({
-                        status: 200,
-                        success: true,
-                        message: 'User logged in successfully',
-                        data: responseData,
-                        credentials: createCredentials(username),
-                    });
+                    }
                 });
             } else {
                 return next({
