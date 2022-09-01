@@ -2,11 +2,20 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Use MONGODB_URI OR detailed MongoDB configuration
 const mongoUri =
     process.env.MONGODB_URI ||
     `${process.env.DB_HOST}://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}/${process.env.DB_NAME}?${process.env.DB_CLUSTER_CONFIG}`;
 
+const mailService = process.env.MAIL_SERVICE;
+const mailAuth = {
+    user: process.env.MAIL_USERNAME,
+    pass: process.env.MAIL_PASSWORD,
+};
+const fromEmail = process.env.FROM_EMAIL;
+
 const port = process.env.PORT || 3001;
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS512';
 const JWT_REFRESH_ALGORITHM = process.env.JWT_REFRESH_ALGORITHM || 'HS256';
@@ -48,4 +57,17 @@ const logger = createLogger({
     exceptionHandlers,
     rejectionHandlers,
 });
-export { logger, mongoUri, port, JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, env, resultLimit };
+export {
+    logger,
+    mongoUri,
+    mailService,
+    mailAuth,
+    fromEmail,
+    port,
+    frontendUrl,
+    JWT_SECRET,
+    JWT_ALGORITHM,
+    JWT_REFRESH_ALGORITHM,
+    env,
+    resultLimit,
+};
