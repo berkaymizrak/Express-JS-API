@@ -28,7 +28,7 @@ const getDetailedUser = async (req, res, next) => {
         return next({
             status: 500,
             success: false,
-            message: 'Error fetching cards',
+            message: 'Error fetching users',
             detailed_message: err.message,
         });
     }
