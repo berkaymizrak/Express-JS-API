@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
-import User from '../User/user-model.js';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM } from '../../config.js';
+import { JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, frontendUrl } from '../../config.js';
 import { userCreateQuery, userFindQuery } from '../User/user-query.js';
+import sendMail from '../../helper/sendMail.js';
 
 function createToken(username, algorithm, expiresIn) {
     const payload = {
@@ -114,4 +114,46 @@ const loginUser = async (req, res, next) => {
         });
 };
 
-export { createUser, loginUser };
+const resetPassword = async (req, res, next) => {
+    const { email } = req.body;
+    const filters = { email };
+    return await userFindQuery(req.query, { filters, limit: 1 })
+        .then(async responseFindQuery => {
+            if (!responseFindQuery.success && responseFindQuery.status !== 200)
+                return next(responseFindQuery);
+            if (responseFindQuery.data.length > 0) {
+                const mailMessageText =
+                    'Click the link to reset your password: ' +
+                    frontendUrl +
+                    '/reset-password/' +
+                    responseFindQuery.data[0]._id;
+                const mailMessageHtml = `
+                    <h1>Password Reset</h1>
+                    <p>
+                        You have requested to reset your password.
+                        <br>
+                        <a href="${frontendUrl}/reset-password/${responseFindQuery.data[0]._id}" target='_blank'>
+                            Click here to reset your password
+                        </a>
+                    </p>
+                `;
+                return next(await sendMail(email, 'Reset Password', mailMessageText, mailMessageHtml));
+            } else {
+                return next({
+                    status: 404,
+                    success: false,
+                    message: 'User not found',
+                });
+            }
+        })
+        .catch(err => {
+            return next({
+                status: 500,
+                success: false,
+                message: 'Error resetting password',
+                detailed_message: err.message,
+            });
+        });
+};
+
+export { createUser, loginUser, resetPassword };
