@@ -19,18 +19,54 @@ const userSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-userSchema.pre('save', function (next) {
-    const user = this;
-    if (user.isModified('email') || user.isNew) {
-        user.email = user.email.toLowerCase();
+userSchema.methods.hashPassword = async function (password) {
+    const error_answer = { status: 500, success: false, message: 'Error hashing password' };
+
+    return await bcryptjs
+        .genSalt(10)
+        .then(async salt => {
+            return await bcryptjs
+                .hash(password, salt)
+                .then(hash => {
+                    return {
+                        status: 200,
+                        success: true,
+                        message: 'Password hashed successfully',
+                        data: hash,
+                    };
+                })
+                .catch(err => {
+                    return { ...error_answer, detailed_message: err.message };
+                });
+        })
+        .catch(err => {
+            return { ...error_answer, detailed_message: err.message };
+        });
+};
+
+userSchema.pre('save', async function (next) {
+    if (this.isModified('email') || this.isNew) {
+        this.email = this.email.toLowerCase();
     }
-    if (user.isModified('password') || user.isNew) {
-        bcryptjs.genSalt(10, (err, salt) => {
-            if (err) return next(err);
-            bcryptjs.hash(user.password, salt, (err, hash) => {
-                if (err) return next(err);
-                user.password = hash;
-            });
+    if (this.isModified('password') || this.isNew) {
+        await this.hashPassword(this.password).then(data => {
+            if (data.success) {
+                this.password = data.data;
+            }
+        });
+    }
+    return next();
+});
+
+userSchema.pre('findOneAndUpdate', async function (next) {
+    if (this._update.email) {
+        this._update.email = this._update.email.toLowerCase();
+    }
+    if (this._update.password) {
+        await this.schema.methods.hashPassword(this._update.password).then(data => {
+            if (data.success) {
+                this._update.password = data.data;
+            }
         });
     }
     return next();

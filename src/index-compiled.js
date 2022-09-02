@@ -1,10 +1,10 @@
 import createError from 'http-errors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import { logger } from './config.js'; // helper functions
+import { logger } from './config.js'; // services functions
 
-import createPaging from './helper/createPaging.js';
-import dbConnection from './helper/db.js';
+import createPaging from './services/createPaging.js';
+import dbConnection from './services/db.js';
 dbConnection(); // Middlewares
 
 import verifyToken from './middlewares/verify-token.js';

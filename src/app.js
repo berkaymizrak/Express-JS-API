@@ -3,9 +3,9 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { logger } from './config.js';
 
-// helper functions
-import createPaging from './helper/createPaging.js';
-import dbConnection from './helper/db.js';
+// services functions
+import createPaging from './services/createPaging.js';
+import dbConnection from './services/db.js';
 dbConnection();
 
 // Middlewares

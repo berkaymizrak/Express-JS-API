@@ -38,7 +38,7 @@ const getDetailedCard = async (req, res, next) => {
             detailed_message: err.message,
         });
     }
-    await cardFindDetailedQuery(req.query, { filters, limit: 1 })
+    return await cardFindDetailedQuery(req.query, { filters, limit: 1 })
         .then(responseFindDetailedQuery => {
             let { success, data } = responseFindDetailedQuery;
             if (success) {
