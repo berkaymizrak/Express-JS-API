@@ -15,6 +15,7 @@ const mailAuth = {
 const fromEmail = process.env.FROM_EMAIL;
 
 const port = process.env.PORT || 3001;
+const apiUrl = process.env.API_URL || 'http://localhost:3001';
 // FRONTEND_URL ends with a slash
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001/';
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
@@ -65,6 +66,7 @@ export {
     mailAuth,
     fromEmail,
     port,
+    apiUrl,
     frontendUrl,
     JWT_SECRET,
     JWT_ALGORITHM,

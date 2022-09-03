@@ -9,6 +9,7 @@ import dbConnection from './services/db.js';
 dbConnection();
 
 // Middlewares
+import middleWares from './middlewares/middleWareHandler.js';
 import verifyToken from './middlewares/verify-token.js';
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+middleWares.forEach(middleware => app.use(middleware));
 publicRoutes.forEach(route => app.use('/api/v1', route));
 privateRoutes.forEach(route => app.use('/api/v1', verifyToken, route));
 
