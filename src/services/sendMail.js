@@ -9,12 +9,14 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendMail = async mailOptions => {
+    if (!env.production) return { status: 200, success: true };
+
     return await transporter
         .sendMail(mailOptions)
         .then(() => {
             return {
-                success: true,
                 status: 200,
+                success: true,
                 mes: 'Email sent successfully',
             };
         })

@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { logger, mongoUri } from '../config.js';
 
-const dbConnection = () => {
-    mongoose.connect(mongoUri, { useNewUrlParser: true });
+const dbConnection = async () => {
+    const mongooseDb = await mongoose.connect(mongoUri, { useNewUrlParser: true });
 
     mongoose.connection
         .on('open', () => {
@@ -23,6 +23,8 @@ const dbConnection = () => {
         .on('connected', () => {
             logger.info('MongoDB connected');
         });
+
+    return mongooseDb;
 };
 
 export default dbConnection;
