@@ -9,26 +9,17 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendMail = async mailOptions => {
-    // TODO: remove below line when testing is complete
-    // return { message: mailOptions };
-
     return await transporter
         .sendMail(mailOptions)
-        .then(info => {
-            console.log('Preview URL: %s', info);
+        .then(() => {
             return {
                 success: true,
                 status: 200,
-                message: 'Email sent successfully',
+                mes: 'Email sent successfully',
             };
         })
         .catch(err => {
-            return {
-                success: false,
-                status: 500,
-                message: 'Error sending email',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error sending email', err };
         });
 };
 

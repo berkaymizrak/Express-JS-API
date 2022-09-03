@@ -27,28 +27,18 @@ const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, l
                     return {
                         status: 200,
                         success: true,
-                        message: 'Card Types retrieved successfully',
+                        mes: 'Card Types retrieved successfully',
                         total_count,
                         count: data.length,
                         data,
                     };
                 })
                 .catch(err => {
-                    return {
-                        status: 500,
-                        success: false,
-                        message: 'Error fetching card types',
-                        detailed_message: err.message,
-                    };
+                    return { mes: 'Error fetching card types', err };
                 });
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error fetching card types',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error fetching card types', err };
         });
 };
 
@@ -64,17 +54,12 @@ const cardTypeCreateQuery = async body => {
             return {
                 status: 201,
                 success: true,
-                message: 'Card Type created successfully',
+                mes: 'Card Type created successfully',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error creating card type',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error creating card type', err };
         });
 };
 
@@ -85,17 +70,12 @@ const cardTypeUpdateQuery = async (filters, update, projection = { __v: 0 }) => 
             return {
                 status: 200,
                 success: !!data,
-                message: data ? 'Card type updated successfully' : 'Card type not found',
+                mes: data ? 'Card type updated successfully' : 'Card type not found',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error updating card type',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error updating card type', err };
         });
 };
 
@@ -106,17 +86,12 @@ const cardTypeDeleteQuery = async (filters, projection = { __v: 0 }) => {
             return {
                 status: 200,
                 success: !!data,
-                message: data ? 'Card type deleted successfully' : 'Card type not found',
+                mes: data ? 'Card type deleted successfully' : 'Card type not found',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error deleting card type',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error deleting card type', err };
         });
 };
 

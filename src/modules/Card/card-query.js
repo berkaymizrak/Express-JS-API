@@ -27,28 +27,18 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
                     return {
                         status: 200,
                         success: true,
-                        message: 'Cards retrieved successfully',
+                        mes: 'Cards retrieved successfully',
                         total_count,
                         count: data.length,
                         data,
                     };
                 })
                 .catch(err => {
-                    return {
-                        status: 500,
-                        success: false,
-                        message: 'Error fetching cards',
-                        detailed_message: err.message,
-                    };
+                    return { mes: 'Error fetching cards', err };
                 });
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error fetching cards',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error fetching cards', err };
         });
 };
 
@@ -128,28 +118,18 @@ const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting
                     return {
                         status: 200,
                         success: true,
-                        message: 'Cards retrieved successfully',
+                        mes: 'Cards retrieved successfully',
                         total_count,
                         count: data.length,
                         data,
                     };
                 })
                 .catch(err => {
-                    return {
-                        status: 500,
-                        success: false,
-                        message: 'Error fetching cards',
-                        detailed_message: err.message,
-                    };
+                    return { mes: 'Error fetching cards', err };
                 });
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error fetching cards',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error fetching cards', err };
         });
 };
 
@@ -166,17 +146,12 @@ const cardCreateQuery = async body => {
             return {
                 status: 201,
                 success: true,
-                message: 'Card created successfully',
+                mes: 'Card created successfully',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error creating card',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error creating card', err };
         });
 };
 
@@ -187,17 +162,12 @@ const cardUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
             return {
                 status: 200,
                 success: !!data,
-                message: data ? 'Card updated successfully' : 'Card not found',
+                mes: data ? 'Card updated successfully' : 'Card not found',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error deleting card',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error deleting card', err };
         });
 };
 
@@ -208,17 +178,12 @@ const cardDeleteQuery = async (filters, projection = { __v: 0 }) => {
             return {
                 status: 200,
                 success: !!data,
-                message: data ? 'Card deleted successfully' : 'Card not found',
+                mes: data ? 'Card deleted successfully' : 'Card not found',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error deleting card',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error deleting card', err };
         });
 };
 

@@ -20,28 +20,18 @@ const tokenFindQuery = async (queryParams, { filters, projection, sorting, limit
                     return {
                         status: 200,
                         success: true,
-                        message: 'Tokens retrieved successfully',
+                        mes: 'Tokens retrieved successfully',
                         total_count,
                         count: data.length,
                         data,
                     };
                 })
                 .catch(err => {
-                    return {
-                        status: 500,
-                        success: false,
-                        message: 'Error fetching tokens',
-                        detailed_message: err.message,
-                    };
+                    return { mes: 'Error fetching tokens', err };
                 });
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error fetching tokens',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error fetching tokens', err };
         });
 };
 
@@ -56,17 +46,12 @@ const tokenCreateQuery = async body => {
             return {
                 status: 201,
                 success: true,
-                message: 'Token created successfully',
+                mes: 'Token created successfully',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error creating token',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error creating token', err };
         });
 };
 
@@ -77,17 +62,12 @@ const tokenDeleteQuery = async (filters, projection = { __v: 0 }) => {
             return {
                 status: 200,
                 success: !!data,
-                message: data ? 'Token deleted successfully' : 'Token not found',
+                mes: data ? 'Token deleted successfully' : 'Token not found',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error deleting token',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error deleting token', err };
         });
 };
 

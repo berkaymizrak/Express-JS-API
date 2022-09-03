@@ -35,7 +35,7 @@ const createUser = async (req, res, next) => {
                 return next({
                     status: 409,
                     success: false,
-                    message: 'Username or Email already exists',
+                    mes: 'Username or Email already exists',
                 });
             } else {
                 return await userCreateQuery(req.body)
@@ -44,22 +44,12 @@ const createUser = async (req, res, next) => {
                         return next(responseCreateQuery);
                     })
                     .catch(err => {
-                        return next({
-                            status: 500,
-                            success: false,
-                            message: 'Error creating user',
-                            detailed_message: err.message,
-                        });
+                        return next({ mes: 'Error creating user', err });
                     });
             }
         })
         .catch(err => {
-            return next({
-                status: 500,
-                success: false,
-                message: 'Error creating user',
-                detailed_message: err.message,
-            });
+            return next({ mes: 'Error creating user', err });
         });
 };
 
@@ -75,19 +65,14 @@ const loginUser = async (req, res, next) => {
                 const responseData = responseFindQuery.data[0];
                 return responseData.comparePassword(password, (err, isMatch) => {
                     if (err) {
-                        return next({
-                            status: 500,
-                            success: false,
-                            message: 'Error logging in',
-                            detailed_message: err.message,
-                        });
+                        return next({ mes: 'Error logging in', err });
                     }
                     if (isMatch) {
                         responseData.password = undefined;
                         return next({
                             status: 200,
                             success: true,
-                            message: 'User logged in successfully',
+                            mes: 'User logged in successfully',
                             data: responseData,
                             credentials: createCredentials(username),
                         });
@@ -95,7 +80,7 @@ const loginUser = async (req, res, next) => {
                         return next({
                             status: 401,
                             success: false,
-                            message: 'Incorrect password',
+                            mes: 'Incorrect password',
                         });
                     }
                 });
@@ -103,50 +88,46 @@ const loginUser = async (req, res, next) => {
                 return next({
                     status: 401,
                     success: false,
-                    message: 'Incorrect Password or Username',
+                    mes: 'Incorrect Password or Username',
                 });
             }
         })
         .catch(err => {
-            return next({
-                status: 500,
-                success: false,
-                message: 'Error logging in user',
-                detailed_message: err.message,
-            });
+            return next({ mes: 'Error logging in user', err });
         });
 };
 
 const requestPasswordReset = async (req, res, next) => {
     const { email } = req.body;
     const filters = { email };
-    return await userFindQuery(req.query, { filters, limit: 1 }).then(async responseFindQuery => {
-        if (!responseFindQuery.success) {
-            return next(responseFindQuery);
-        }
-        if (!responseFindQuery.count) {
-            return next({
-                status: 200,
-                success: false,
-                message: 'User not found',
+    return await userFindQuery(req.query, { filters, limit: 1 })
+        .then(async responseFindQuery => {
+            if (!responseFindQuery.success) {
+                return next(responseFindQuery);
+            }
+            if (!responseFindQuery.count) {
+                return next({
+                    status: 200,
+                    success: false,
+                    mes: 'User not found',
+                });
+            }
+
+            const user = responseFindQuery.data[0];
+            const userId = user._id;
+            const filters = { userId };
+            await tokenDeleteQuery(filters);
+
+            let token = crypto.randomBytes(32).toString('hex');
+
+            await tokenCreateQuery({
+                userId,
+                token,
             });
-        }
 
-        const user = responseFindQuery.data[0];
-        const userId = user._id;
-        const filters = { userId };
-        await tokenDeleteQuery(filters);
-
-        let token = crypto.randomBytes(32).toString('hex');
-
-        await tokenCreateQuery({
-            userId,
-            token,
-        });
-
-        const link = `${frontendUrl}/reset_password?token=${token}&userId=${userId}`;
-        const mailMessageText = `Dear ${user.firstName}, Click the link to reset your password: ${link}`;
-        const mailMessageHtml = `
+            const link = `${frontendUrl}reset_password?token=${token}&userId=${userId}`;
+            const mailMessageText = `Dear ${user.firstName}, Click the link to reset your password: ${link}`;
+            const mailMessageHtml = `
                     <h1>Password Reset</h1>
                     <p>
                         Dear ${user.firstName},
@@ -159,51 +140,60 @@ const requestPasswordReset = async (req, res, next) => {
                     </p>
                 `;
 
-        return next(
-            await sendMailPayload(
-                user.email,
-                'Reset Password Request',
-                mailMessageText,
-                mailMessageHtml
-                // { name: user.name, link: link },
-                // '../template/requestResetPassword.handlebars'
-            )
-        );
-    });
+            return next(
+                await sendMailPayload(
+                    user.email,
+                    'Reset Password Request',
+                    mailMessageText,
+                    mailMessageHtml
+                    // { name: user.name, link: link },
+                    // '../template/requestResetPassword.handlebars'
+                )
+            );
+        })
+        .catch(err => {
+            return next({ mes: 'Error requesting password reset', err });
+        });
 };
 
 const resetPasswordConfirm = async (req, res, next) => {
     const { token, userId } = req.query;
     const filters = { token, userId };
-    return await tokenFindQuery(req.query, { filters, limit: 1 }).then(async responseFindQuery => {
-        if (!responseFindQuery.success) {
-            return next(responseFindQuery);
-        }
-        if (!responseFindQuery.count) {
-            return next({
-                status: 200,
-                success: false,
-                message: 'Token not found',
-            });
-        }
-        await userFindQuery(req.query, { filters: { _id: userId }, limit: 1 }).then(
-            async responseUserFindQuery => {
-                if (!responseUserFindQuery.success) return next(responseUserFindQuery);
-                if (!responseUserFindQuery.count) {
-                    return next({
-                        status: 200,
-                        success: false,
-                        message: 'User not found',
-                    });
-                }
+    return await tokenFindQuery(req.query, { filters, limit: 1 })
+        .then(async responseFindQuery => {
+            if (!responseFindQuery.success) {
+                return next(responseFindQuery);
+            }
+            if (!responseFindQuery.count) {
                 return next({
                     status: 200,
-                    success: true,
-                    message: 'Token is valid',
+                    success: false,
+                    mes: 'Token not found',
                 });
             }
-        );
-    });
+            await userFindQuery(req.query, { filters: { _id: userId }, limit: 1 })
+                .then(async responseUserFindQuery => {
+                    if (!responseUserFindQuery.success) return next(responseUserFindQuery);
+                    if (!responseUserFindQuery.count) {
+                        return next({
+                            status: 200,
+                            success: false,
+                            mes: 'User not found',
+                        });
+                    }
+                    return next({
+                        status: 200,
+                        success: true,
+                        mes: 'Token is valid',
+                    });
+                })
+                .catch(err => {
+                    return next({ mes: 'Error confirming reset password', err });
+                });
+        })
+        .catch(err => {
+            return next({ mes: 'Error confirming reset password', err });
+        });
 };
 
 const resetPassword = async (req, res, next) => {
@@ -212,14 +202,14 @@ const resetPassword = async (req, res, next) => {
     const errorMessage = 'Invalid or expired password reset token';
 
     const tokenFilters = { userId };
-    return await tokenFindQuery(req.query, { filters: tokenFilters, limit: 1 }).then(
-        async responseTokenFindQuery => {
+    return await tokenFindQuery(req.query, { filters: tokenFilters, limit: 1 })
+        .then(async responseTokenFindQuery => {
             if (!responseTokenFindQuery.success || !responseTokenFindQuery.count) {
                 responseTokenFindQuery = {
                     ...responseTokenFindQuery,
                     status: 401,
                     success: false,
-                    message: errorMessage,
+                    mes: errorMessage,
                 };
                 return next(responseTokenFindQuery);
             }
@@ -228,14 +218,14 @@ const resetPassword = async (req, res, next) => {
                 return next({
                     status: 401,
                     success: false,
-                    message: errorMessage,
+                    mes: errorMessage,
                 });
             }
 
             if (!env.development) await tokenDeleteQuery(tokenFilters);
 
-            return await userUpdateQuery({ _id: userId }, { password }).then(
-                async responseUserUpdateQuery => {
+            return await userUpdateQuery({ _id: userId }, { password })
+                .then(async responseUserUpdateQuery => {
                     if (!responseUserUpdateQuery.success) return next(responseUserUpdateQuery);
 
                     const user = responseUserUpdateQuery.data;
@@ -253,10 +243,14 @@ const resetPassword = async (req, res, next) => {
                             // './template/resetPassword.handlebars'
                         )
                     );
-                }
-            );
-        }
-    );
+                })
+                .catch(err => {
+                    return next({ mes: 'Error resetting password', err });
+                });
+        })
+        .catch(err => {
+            return next({ mes: 'Error resetting password', err });
+        });
 };
 
 const listTokens = async (req, res, next) => {

@@ -31,12 +31,7 @@ const getDetailedCard = async (req, res, next) => {
             },
         ];
     } catch (err) {
-        return next({
-            status: 500,
-            success: false,
-            message: 'Error fetching cards',
-            detailed_message: err.message,
-        });
+        return next({ mes: 'Error fetching cards', err });
     }
     return await cardFindDetailedQuery(req.query, { filters, limit: 1 })
         .then(responseFindDetailedQuery => {
@@ -49,12 +44,7 @@ const getDetailedCard = async (req, res, next) => {
             return next(responseFindDetailedQuery);
         })
         .catch(err => {
-            return next({
-                status: 500,
-                success: false,
-                message: 'Error fetching card',
-                detailed_message: err.message,
-            });
+            return next({ mes: 'Error fetching card', err });
         });
 };
 

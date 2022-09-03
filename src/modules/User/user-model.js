@@ -20,8 +20,6 @@ const userSchema = new Schema({
 });
 
 userSchema.methods.hashPassword = async function (password) {
-    const error_answer = { status: 500, success: false, message: 'Error hashing password' };
-
     return await bcryptjs
         .genSalt(10)
         .then(async salt => {
@@ -31,16 +29,16 @@ userSchema.methods.hashPassword = async function (password) {
                     return {
                         status: 200,
                         success: true,
-                        message: 'Password hashed successfully',
+                        mes: 'Password hashed successfully',
                         data: hash,
                     };
                 })
                 .catch(err => {
-                    return { ...error_answer, detailed_message: err.message };
+                    return { mes: 'Error hashing password', err };
                 });
         })
         .catch(err => {
-            return { ...error_answer, detailed_message: err.message };
+            return { mes: 'Error hashing password', err };
         });
 };
 
@@ -49,11 +47,15 @@ userSchema.pre('save', async function (next) {
         this.email = this.email.toLowerCase();
     }
     if (this.isModified('password') || this.isNew) {
-        await this.hashPassword(this.password).then(data => {
-            if (data.success) {
-                this.password = data.data;
-            }
-        });
+        await this.hashPassword(this.password)
+            .then(data => {
+                if (data.success) {
+                    this.password = data.data;
+                }
+            })
+            .catch(err => {
+                return next({ mes: 'Error saving password', err });
+            });
     }
     return next();
 });
@@ -63,11 +65,16 @@ userSchema.pre('findOneAndUpdate', async function (next) {
         this._update.email = this._update.email.toLowerCase();
     }
     if (this._update.password) {
-        await this.schema.methods.hashPassword(this._update.password).then(data => {
-            if (data.success) {
-                this._update.password = data.data;
-            }
-        });
+        await this.schema.methods
+            .hashPassword(this._update.password)
+            .then(data => {
+                if (data.success) {
+                    this._update.password = data.data;
+                }
+            })
+            .catch(err => {
+                return next({ mes: 'Error saving password', err });
+            });
     }
     return next();
 });

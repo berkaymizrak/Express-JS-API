@@ -13,7 +13,7 @@ import verifyToken from './middlewares/verify-token.js';
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 
 // config
-import { env, port } from './config.js';
+import { port } from './config.js';
 
 const app = express();
 
@@ -31,7 +31,7 @@ app.use((req, res, next) => {
 
 // general interceptor for all requests
 app.use((serverResponse, req, res, next) => {
-    const { status, success, message, total_count, count, data, credentials } = serverResponse;
+    const { status, success, mes, total_count, count, data, credentials } = serverResponse;
 
     logger.info(serverResponse);
 
@@ -44,7 +44,7 @@ app.use((serverResponse, req, res, next) => {
               // general response
               timestamp: new Date(),
               success,
-              message,
+              message: mes,
 
               // pagination
               paging,
@@ -60,14 +60,22 @@ app.use((serverResponse, req, res, next) => {
 });
 
 // error handler
-app.use((err, req, res, next) => {
-    const { status, success, message, detailed_message } = err;
+app.use((error, req, res, next) => {
+    const {
+        status,
+        mes,
+        err: { message },
+    } = error;
+    let { success } = error;
+    if (!success) success = false;
 
     // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = env.development ? err : {};
+    // res.locals.message = err.message;
+    // res.locals.error = env.development ? err : {};
 
-    return res.status(status || 500).send({ timestamp: new Date(), success, message, detailed_message });
+    return res
+        .status(status || 500)
+        .send({ timestamp: new Date(), success, message: mes, detailed_message: message });
 });
 
 app.listen(port, () => {
@@ -77,5 +85,6 @@ app.listen(port, () => {
 process.on('unhandledRejection', err => {
     console.log('UNHANDLED REJECTION! Shutting down...');
     console.log(err.name, err.message);
+    logger.error(err.name, err.message);
     process.exit(1);
 });

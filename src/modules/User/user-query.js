@@ -27,28 +27,18 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
                     return {
                         status: 200,
                         success: true,
-                        message: 'Users retrieved successfully',
+                        mes: 'Users retrieved successfully',
                         total_count,
                         count: data.length,
                         data,
                     };
                 })
                 .catch(err => {
-                    return {
-                        status: 500,
-                        success: false,
-                        message: 'Error fetching users',
-                        detailed_message: err.message,
-                    };
+                    return { mes: 'Error fetching users', err };
                 });
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error fetching users',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error fetching users', err };
         });
 };
 
@@ -162,28 +152,18 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
                     return {
                         status: 200,
                         success: true,
-                        message: 'Users retrieved successfully',
+                        mes: 'Users retrieved successfully',
                         total_count,
                         count: data.length,
                         data,
                     };
                 })
                 .catch(err => {
-                    return {
-                        status: 500,
-                        success: false,
-                        message: 'Error fetching users',
-                        detailed_message: err.message,
-                    };
+                    return { mes: 'Error fetching users', err };
                 });
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error fetching users',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error fetching users', err };
         });
 };
 
@@ -201,17 +181,12 @@ const userCreateQuery = async body => {
             return {
                 status: 201,
                 success: true,
-                message: 'User created successfully',
+                mes: 'User created successfully',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error creating user',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error creating user', err };
         });
 };
 
@@ -225,17 +200,12 @@ const userUpdateQuery = async (filters, update, projection = { __v: 0, password:
             return {
                 status: 200,
                 success: !!data,
-                message: data ? 'User updated successfully' : 'User not found',
+                mes: data ? 'User updated successfully' : 'User not found',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error updating user',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error updating user', err };
         });
 };
 
@@ -246,17 +216,12 @@ const userDeleteQuery = async (filters, projection = { __v: 0, password: 0 }) =>
             return {
                 status: 200,
                 success: !!data,
-                message: data ? 'User deleted successfully' : 'User not found',
+                mes: data ? 'User deleted successfully' : 'User not found',
                 data,
             };
         })
         .catch(err => {
-            return {
-                status: 500,
-                success: false,
-                message: 'Error deleting user',
-                detailed_message: err.message,
-            };
+            return { mes: 'Error deleting user', err };
         });
 };
 
