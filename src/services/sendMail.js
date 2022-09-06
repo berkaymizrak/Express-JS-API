@@ -1,7 +1,9 @@
 import nodemailer from 'nodemailer';
 import { env, fromEmail, mailAuth, mailService } from '../config.js';
-// import path from 'path';
-// import fs from 'fs';
+import path from 'path';
+import { __dirname } from '../app.js';
+import pug from 'pug';
+import Email from 'email-templates';
 
 const transporter = nodemailer.createTransport({
     service: mailService,
@@ -9,8 +11,6 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendMail = async mailOptions => {
-    if (!env.production) return { status: 200, success: true, mes: mailOptions };
-
     return await transporter
         .sendMail(mailOptions)
         .then(() => {
@@ -40,17 +40,42 @@ const sendMailPayload = async (to, subject, text, html) => {
     return await sendMail(mailOptions);
 };
 
-const sendMailTemplete = async (to, subject, payload, template) => {
-    const source = fs.readFileSync(path.join(__dirname, template), 'utf8');
-    const compiledTemplate = handlebars.compile(source);
-    const mailOptions = {
-        from: fromEmail,
-        to: to,
-        subject: subject,
-        html: compiledTemplate(payload),
-    };
+const sendMailTemplate = async (to, subject, template, payload) => {
+    const email = new Email({
+        views: { root: path.join(__dirname, 'templates') },
+        preview: env.development,
+    });
 
-    return await sendMail(mailOptions);
+    if (env.development) {
+        return await email
+            .send({
+                message: {
+                    from: fromEmail,
+                    to,
+                    subject,
+                    html: await email.render(template, payload),
+                },
+            })
+            .then(() => {
+                return {
+                    status: 200,
+                    success: true,
+                    mes: `Email sent successfully. ${payload.link}`,
+                };
+            })
+            .catch(err => {
+                return { mes: 'Error sending email', err };
+            });
+    } else {
+        const mailOptions = {
+            from: fromEmail,
+            to,
+            subject,
+            html: await pug.renderFile(path.join(__dirname, 'templates', template + '.pug'), payload),
+        };
+
+        return await sendMail(mailOptions);
+    }
 };
 
-export { sendMailPayload, sendMailTemplete };
+export { sendMailPayload, sendMailTemplate };

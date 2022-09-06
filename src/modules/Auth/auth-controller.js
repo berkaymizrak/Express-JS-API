@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET, JWT_ALGORITHM, JWT_REFRESH_ALGORITHM, frontendUrl, env } from '../../config.js';
 import { userCreateQuery, userFindQuery, userUpdateQuery } from '../User/user-query.js';
-import { sendMailPayload, sendMailTemplete } from '../../services/sendMail.js';
+import { sendMailTemplate } from '../../services/sendMail.js';
 import { tokenCreateQuery, tokenDeleteQuery, tokenFindQuery } from './token-query.js';
 import crypto from 'crypto';
 
@@ -103,7 +103,7 @@ const loginUser = async (req, res, next) => {
     );
 };
 
-const requestPasswordReset = async (req, res, next) => {
+const resetPasswordRequest = async (req, res, next) => {
     const { email } = req.body;
     const filters = { email };
     return await userFindQuery(req.query, { filters, limit: 1 })
@@ -131,29 +131,17 @@ const requestPasswordReset = async (req, res, next) => {
                 token,
             });
 
-            const link = `${frontendUrl}reset_password?token=${token}&userId=${userId}`;
-            const mailMessageText = `Dear ${user.firstName}, Click the link to reset your password: ${link}`;
-            const mailMessageHtml = `
-                    <h1>Password Reset</h1>
-                    <p>
-                        Dear ${user.firstName},
-                    </p>
-                    <p>
-                        You have requested to reset your password.
-                    </p>
-                    <p>
-                        <a href="${link}" target='_blank'>Click here to reset your password</a>
-                    </p>
-                `;
-
+            const link = `${frontendUrl}reset_password_confirm?token=${token}&userId=${userId}`;
+            const mailPayload = {
+                fullName: `${user.firstName} ${user.lastName}`,
+                link,
+            };
             return next(
-                await sendMailPayload(
+                await sendMailTemplate(
                     user.email,
                     'Reset Password Request',
-                    mailMessageText,
-                    mailMessageHtml
-                    // { name: user.name, link: link },
-                    // '../template/requestResetPassword.handlebars'
+                    'resetPasswordRequest',
+                    mailPayload
                 )
             );
         })
@@ -202,7 +190,7 @@ const resetPasswordConfirm = async (req, res, next) => {
         });
 };
 
-const resetPassword = async (req, res, next) => {
+const resetPasswordDone = async (req, res, next) => {
     const { token, userId } = req.query;
     const { password } = req.body;
     const errorMessage = 'Invalid or expired password reset token';
@@ -236,17 +224,17 @@ const resetPassword = async (req, res, next) => {
 
                     const user = responseUserUpdateQuery.data;
 
+                    const link = `${frontendUrl}`;
+                    const mailPayload = {
+                        fullName: `${user.firstName} ${user.lastName}`,
+                        link,
+                    };
                     return next(
-                        await sendMailPayload(
+                        await sendMailTemplate(
                             user.email,
-                            'Password Reset Successfully',
-                            `Dear ${user.firstName},
-                            Your password has been reset successfully.
-                            \nYou can now login with your new password.`
-                            // {
-                            //     name: user.name,
-                            // },
-                            // './template/resetPassword.handlebars'
+                            'Reset Password Successfully',
+                            'resetPasswordDone',
+                            mailPayload
                         )
                     );
                 })
@@ -263,4 +251,4 @@ const listTokens = async (req, res, next) => {
     return next(await tokenFindQuery(req.query, {}));
 };
 
-export { createUser, loginUser, requestPasswordReset, resetPasswordConfirm, resetPassword, listTokens };
+export { createUser, loginUser, resetPasswordRequest, resetPasswordConfirm, resetPasswordDone, listTokens };

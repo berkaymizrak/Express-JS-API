@@ -16,6 +16,9 @@ import { adminRoutes, privateRoutes, publicRoutes } from './middlewares/router-b
 // config
 import { port, logger, env, sessionOptions } from './config.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const runServer = async () => {
     const app = express();
 
@@ -32,8 +35,6 @@ const runServer = async () => {
     app.use(express.urlencoded({ extended: false }));
     // app.use(cookieParser());
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
     app.use('/static', express.static(path.join(__dirname, 'static')));
 
     middleWares.forEach(middleware => app.use(middleware));
@@ -105,3 +106,5 @@ const runServer = async () => {
 };
 
 runServer();
+
+export { __dirname };
