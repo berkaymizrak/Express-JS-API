@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { fromEmail, mailAuth, mailService } from '../config.js';
+import { env, fromEmail, mailAuth, mailService } from '../config.js';
 // import path from 'path';
 // import fs from 'fs';
 
@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendMail = async mailOptions => {
-    if (!env.production) return { status: 200, success: true };
+    if (!env.production) return { status: 200, success: true, mes: mailOptions };
 
     return await transporter
         .sendMail(mailOptions)

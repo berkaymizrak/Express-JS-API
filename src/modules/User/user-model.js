@@ -8,16 +8,26 @@ const userSchema = new Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true, dropDups: true },
     password: { type: String, required: true, minLength: 6, maxLength: 200 },
-    phone: String,
-    address: String,
-    city: String,
-    state: String,
-    zip: String,
-    country: String,
+    role: {
+        type: String,
+        enum: ['admin', 'member'],
+        required: true,
+        default: 'member',
+    },
+    // phone: String,
+    // address: String,
+    // city: String,
+    // state: String,
+    // zip: String,
+    // country: String,
     active: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
+
+userSchema.methods.isAdmin = function (role) {
+    return role === 'admin';
+};
 
 userSchema.methods.hashPassword = async function (password) {
     return await bcryptjs
@@ -54,7 +64,7 @@ userSchema.pre('save', async function (next) {
                 }
             })
             .catch(err => {
-                return next({ mes: 'Error saving password', err });
+                return next(err);
             });
     }
     return next();
@@ -73,17 +83,25 @@ userSchema.pre('findOneAndUpdate', async function (next) {
                 }
             })
             .catch(err => {
-                return next({ mes: 'Error saving password', err });
+                return next(err);
             });
     }
     return next();
 });
 
-userSchema.methods.comparePassword = function (password, callback) {
-    bcryptjs.compare(password, this.password, (err, isMatch) => {
-        if (err) return callback(err);
-        return callback(null, isMatch);
-    });
+userSchema.methods.comparePassword = async function (password) {
+    return await bcryptjs
+        .compare(password, this.password)
+        .then(isMatch => {
+            if (isMatch) {
+                return { status: 200, success: true, mes: 'Password matched' };
+            } else {
+                return { status: 400, success: false, mes: 'Password did not match' };
+            }
+        })
+        .catch(err => {
+            return { status: 500, success: false, err };
+        });
 };
 
 const users = mongoose.model('users', userSchema);

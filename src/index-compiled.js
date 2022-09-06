@@ -1,6 +1,10 @@
 import createError from 'http-errors';
-import express from 'express';
-import cookieParser from 'cookie-parser'; // services functions
+import express from 'express'; // import cookieParser from 'cookie-parser';
+
+import session from 'express-session';
+import adminAuth from './middlewares/admin-auth.js';
+import path from 'path';
+import { fileURLToPath } from 'url'; // services
 
 import createPaging from './services/createPaging.js'; // Middlewares
 
@@ -8,17 +12,30 @@ import middleWares from './middlewares/middleWareHandler.js';
 import verifyToken from './middlewares/verify-token.js';
 import { adminRoutes, privateRoutes, publicRoutes } from './middlewares/router-bundler.js'; // config
 
-import { port, logger } from './config.js';
+import { port, logger, env, sessionOptions } from './config.js';
 
 const runServer = async () => {
   const app = express();
+
+  if (env.production) {
+    app.set('trust proxy', 1); // trust first proxy
+
+    sessionOptions.cookie.secure = true; // serve secure cookies
+  }
+
+  app.use(session(sessionOptions)); // DB connection is done in adminRouter
+
+  adminRoutes.forEach(route => app.use('/api/admin', adminAuth, route));
   app.use(express.json());
   app.use(express.urlencoded({
     extended: false
-  }));
-  app.use(cookieParser()); // DB connection is done in adminRouter
+  })); // app.use(cookieParser());
 
-  adminRoutes.forEach(route => app.use('/api/v1/admin', route));
+  const __filename = fileURLToPath(import.meta.url);
+
+  const __dirname = path.dirname(__filename);
+
+  app.use('/static', express.static(path.join(__dirname, 'static')));
   middleWares.forEach(middleware => app.use(middleware));
   publicRoutes.forEach(route => app.use('/api/v1', route));
   privateRoutes.forEach(route => app.use('/api/v1', verifyToken, route)); // catch 404 and forward to error handler

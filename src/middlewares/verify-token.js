@@ -12,25 +12,25 @@ const verifyToken = async (req, res, next) => {
         const bearerHeader = req.headers.authorization;
         if (bearerHeader) {
             useToken = bearerHeader?.split(' ')[1];
-        } else {
-            useToken = null;
         }
     }
 
     if (useToken) {
-        await jwt.verify(useToken, JWT_SECRET, (err, decoded) => {
-            if (err) {
-                return next({
-                    status: 401,
-                    success: false,
-                    mes: 'Token is not valid',
-                    err,
-                });
-            } else {
-                req.decoded = decoded;
-                return next();
-            }
-        });
+        return next(
+            await jwt.verify(useToken, JWT_SECRET, (err, decoded) => {
+                if (err) {
+                    return {
+                        status: 401,
+                        success: false,
+                        mes: 'Token is not valid',
+                        err,
+                    };
+                } else {
+                    req.decoded = decoded;
+                    return;
+                }
+            })
+        );
     } else {
         return next({
             status: 401,

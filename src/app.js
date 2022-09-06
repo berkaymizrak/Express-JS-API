@@ -1,8 +1,12 @@
 import createError from 'http-errors';
 import express from 'express';
-import cookieParser from 'cookie-parser';
+// import cookieParser from 'cookie-parser';
+import session from 'express-session';
+// import adminAuth from './middlewares/admin-auth.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// services functions
+// services
 import createPaging from './services/createPaging.js';
 
 // Middlewares
@@ -11,17 +15,27 @@ import verifyToken from './middlewares/verify-token.js';
 import { adminRoutes, privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 
 // config
-import { port, logger } from './config.js';
+import { port, logger, env, sessionOptions } from './config.js';
 
 const runServer = async () => {
     const app = express();
 
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: false }));
-    app.use(cookieParser());
+    if (env.production) {
+        app.set('trust proxy', 1); // trust first proxy
+        sessionOptions.cookie.secure = true; // serve secure cookies
+    }
+    app.use(session(sessionOptions));
 
     // DB connection is done in adminRouter
-    adminRoutes.forEach(route => app.use('/api/v1/admin', route));
+    adminRoutes.forEach(route => app.use('/api/admin', route));
+
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    // app.use(cookieParser());
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    app.use('/static', express.static(path.join(__dirname, 'static')));
 
     middleWares.forEach(middleware => app.use(middleware));
     publicRoutes.forEach(route => app.use('/api/v1', route));
