@@ -2,7 +2,6 @@ import createError from 'http-errors';
 import express from 'express';
 // import cookieParser from 'cookie-parser';
 import session from 'express-session';
-// import adminAuth from './middlewares/admin-auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -26,7 +25,7 @@ const runServer = async () => {
     }
     app.use(session(sessionOptions));
 
-    // DB connection is done in adminRouter
+    // DB connection is done in admin-router.js > admin-config.js
     adminRoutes.forEach(route => app.use('/api/admin', route));
 
     app.use(express.json());
