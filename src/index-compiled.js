@@ -2,7 +2,6 @@ import createError from 'http-errors';
 import express from 'express'; // import cookieParser from 'cookie-parser';
 
 import session from 'express-session';
-import adminAuth from './middlewares/admin-auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url'; // services
 
@@ -14,6 +13,10 @@ import { adminRoutes, privateRoutes, publicRoutes } from './middlewares/router-b
 
 import { port, logger, env, sessionOptions } from './config.js';
 
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
+
 const runServer = async () => {
   const app = express();
 
@@ -23,17 +26,13 @@ const runServer = async () => {
     sessionOptions.cookie.secure = true; // serve secure cookies
   }
 
-  app.use(session(sessionOptions)); // DB connection is done in adminRouter
+  app.use(session(sessionOptions)); // DB connection is done in admin-router.js > admin-config.js
 
-  adminRoutes.forEach(route => app.use('/api/admin', adminAuth, route));
+  adminRoutes.forEach(route => app.use('/api/admin', route));
   app.use(express.json());
   app.use(express.urlencoded({
     extended: false
   })); // app.use(cookieParser());
-
-  const __filename = fileURLToPath(import.meta.url);
-
-  const __dirname = path.dirname(__filename);
 
   app.use('/static', express.static(path.join(__dirname, 'static')));
   middleWares.forEach(middleware => app.use(middleware));
@@ -108,3 +107,4 @@ const runServer = async () => {
 };
 
 runServer();
+export { __dirname };
