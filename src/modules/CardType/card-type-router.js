@@ -11,7 +11,7 @@ import setPaginationParams from '../../middlewares/pagination-params.js';
 
 cardTypeRouter
     .get('/card_types', setPaginationParams, listCardTypes)
-    .post('/card_types', setPaginationParams, createCardType)
+    .post('/card_types', createCardType)
     .get('/card_types/:id', getCardType)
     .put('/card_types/:id', updateCardType)
     .delete('/card_types/:id', deleteCardType);

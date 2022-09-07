@@ -23,12 +23,12 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
         .then(async data => {
             return await users
                 .count(filters)
-                .then(total_count => {
+                .then(totalCount => {
                     return {
                         status: 200,
                         success: true,
                         mes: 'Users retrieved successfully',
-                        total_count,
+                        totalCount,
                         count: data.length,
                         data,
                     };
@@ -42,7 +42,10 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
         });
 };
 
-const userFindDetailedQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
+const userFindDetailedQuery = async (
+    queryParams,
+    { filters, countFilters, projection, sorting, limit, skip }
+) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -60,6 +63,7 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
     //     },
     // ];
     if (!filters) filters = [];
+    if (!countFilters) countFilters = {};
     if (!projection) projection = { password: 0 };
     if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
     if (!limit) limit = queryParams.limit || resultLimit;
@@ -117,7 +121,7 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
             },
             {
                 $addFields: {
-                    card_count: { $size: '$cards' },
+                    cardCount: { $size: '$cards' },
                     fullName: { $concat: ['$firstName', ' ', '$lastName'] },
                 },
             },
@@ -147,13 +151,13 @@ const userFindDetailedQuery = async (queryParams, { filters, projection, sorting
         .sort(sorting)
         .then(async data => {
             return await users
-                .count(filters)
-                .then(total_count => {
+                .count(countFilters)
+                .then(totalCount => {
                     return {
                         status: 200,
                         success: true,
                         mes: 'Users retrieved successfully',
-                        total_count,
+                        totalCount,
                         count: data.length,
                         data,
                     };

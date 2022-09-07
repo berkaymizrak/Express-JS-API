@@ -1,11 +1,11 @@
-const createPaging = (req, total_count) => {
+const createPaging = (req, totalCount) => {
     // Set pagination urls
     // Calculated req.query params are set in pagination-params.js
     let { current_page_number, previous_page_number, next_page_number, limit } = req.query;
 
     if (current_page_number === undefined) return undefined;
 
-    const max_page_number = Math.ceil(total_count / limit);
+    const max_page_number = Math.ceil(totalCount / limit);
     const basePage = req.protocol + '://' + req.get('host') + req.path;
     const current_page = basePage + '?page=' + current_page_number + '&limit=' + limit;
 

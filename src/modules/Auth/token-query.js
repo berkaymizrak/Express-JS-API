@@ -16,12 +16,12 @@ const tokenFindQuery = async (queryParams, { filters, projection, sorting, limit
         .then(async data => {
             return await tokens
                 .count(filters)
-                .then(total_count => {
+                .then(totalCount => {
                     return {
                         status: 200,
                         success: true,
                         mes: 'Tokens retrieved successfully',
-                        total_count,
+                        totalCount,
                         count: data.length,
                         data,
                     };

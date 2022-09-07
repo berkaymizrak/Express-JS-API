@@ -48,13 +48,13 @@ const runServer = async () => {
       status,
       success,
       mes,
-      total_count,
+      totalCount,
       count,
       data,
       credentials
     } = serverResponse;
     logger.info(serverResponse);
-    const paging = createPaging(req, total_count); // Send response to client
+    const paging = createPaging(req, totalCount); // Send response to client
 
     return status !== 200 && !success ? next(serverResponse) // if error, pass it to next middleware
     : res.status(status || 200).send({
@@ -65,7 +65,7 @@ const runServer = async () => {
       // pagination
       paging,
       // data
-      total_count,
+      totalCount,
       count,
       data,
       // authentication

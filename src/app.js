@@ -48,11 +48,11 @@ const runServer = async () => {
 
     // general interceptor for all requests
     app.use((serverResponse, req, res, next) => {
-        const { status, success, mes, total_count, count, data, credentials } = serverResponse;
+        const { status, success, mes, totalCount, count, data, credentials } = serverResponse;
 
         logger.info(serverResponse);
 
-        const paging = createPaging(req, total_count);
+        const paging = createPaging(req, totalCount);
 
         // Send response to client
         return status !== 200 && !success
@@ -67,7 +67,7 @@ const runServer = async () => {
                   paging,
 
                   // data
-                  total_count,
+                  totalCount,
                   count,
                   data,
 
@@ -78,7 +78,6 @@ const runServer = async () => {
 
     // error handler
     app.use((error, req, res, next) => {
-        console.log(error);
         logger.error(error);
         const { status, mes, err } = error;
         let { success } = error;
@@ -90,7 +89,7 @@ const runServer = async () => {
 
         return res
             .status(status || 500)
-            .send({ timestamp: new Date(), success, message: mes, detailed_message: 'message' });
+            .send({ timestamp: new Date(), success, message: mes, detailed_message: err.message });
     });
 
     app.listen(port, () => {

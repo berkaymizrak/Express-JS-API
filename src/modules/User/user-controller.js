@@ -17,24 +17,22 @@ const getUser = async (req, res, next) => {
 
 const getDetailedUser = async (req, res, next) => {
     const { id } = req.params;
-    let filters;
+    const filters = [];
     try {
-        filters = [
-            {
-                $match: { _id: mongoose.Types.ObjectId(id) },
-            },
-        ];
+        filters.push({
+            $match: { _id: mongoose.Types.ObjectId(id) },
+        });
     } catch (err) {
         return next({ mes: 'Error fetching users', err });
     }
-    return await userFindDetailedQuery(req.query, { filters, limit: 1 })
+    const countFilters = { _id: id };
+    return await userFindDetailedQuery(req.query, { filters, countFilters, limit: 1 })
         .then(responseFindDetailedQuery => {
             let { success, data } = responseFindDetailedQuery;
             if (success) {
                 data = data.find(elem => elem._id == id);
             }
             responseFindDetailedQuery['data'] = data;
-            responseFindDetailedQuery['total_count'] = 1;
             return next(responseFindDetailedQuery);
         })
         .catch(err => {

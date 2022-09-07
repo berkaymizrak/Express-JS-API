@@ -23,12 +23,12 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
         .then(async data => {
             return await cards
                 .count(filters)
-                .then(total_count => {
+                .then(totalCount => {
                     return {
                         status: 200,
                         success: true,
                         mes: 'Cards retrieved successfully',
-                        total_count,
+                        totalCount,
                         count: data.length,
                         data,
                     };
@@ -42,7 +42,10 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
         });
 };
 
-const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
+const cardFindDetailedQuery = async (
+    queryParams,
+    { filters, countFilters, projection, sorting, limit, skip }
+) => {
     // EXAMPLE
     // const filters = [
     //     {
@@ -60,6 +63,7 @@ const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting
     //     },
     // ];
     if (!filters) filters = [];
+    if (!countFilters) countFilters = {};
     if (!projection) projection = {};
     if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
     if (!limit) limit = queryParams.limit || resultLimit;
@@ -113,13 +117,13 @@ const cardFindDetailedQuery = async (queryParams, { filters, projection, sorting
         .sort(sorting)
         .then(async data => {
             return await cards
-                .count(filters)
-                .then(total_count => {
+                .count(countFilters)
+                .then(totalCount => {
                     return {
                         status: 200,
                         success: true,
                         mes: 'Cards retrieved successfully',
-                        total_count,
+                        totalCount,
                         count: data.length,
                         data,
                     };
