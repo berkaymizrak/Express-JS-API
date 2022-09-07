@@ -2,12 +2,26 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 import bcryptjs from 'bcryptjs';
 
+// validate: {
+//     validator: function (el) {
+//         return el === this.password;
+//     },
+//     message: "Passwords don't match.",
+// }
+
 const userSchema = new Schema({
-    username: { type: String, required: true, minLength: 3, maxLength: 200, unique: true, dropDups: true },
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true, unique: true, dropDups: true },
-    password: { type: String, required: true, minLength: 6, maxLength: 200 },
+    username: {
+        type: String,
+        required: [true, 'Username is required'],
+        minLength: 3,
+        maxLength: 200,
+        unique: true,
+        dropDups: true,
+    },
+    firstName: { type: String, required: [true, 'First name is required'] },
+    lastName: { type: String, required: [true, 'Last name is required'] },
+    email: { type: String, required: [true, 'Email is required'], unique: true, dropDups: true },
+    password: { type: String, required: [true, 'Password is required'], minLength: 6, maxLength: 200 },
     role: {
         type: String,
         enum: ['admin', 'member'],

@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-    createUser,
+    signupController,
     listTokens,
     loginUser,
     resetPasswordRequest,
@@ -12,7 +12,7 @@ import setPaginationParams from '../../middlewares/pagination-params.js';
 const authRouter = express.Router();
 
 authRouter
-    .post('/signup', createUser)
+    .post('/signup', signupController)
     .post('/login', loginUser)
     .post('/reset_password_request', resetPasswordRequest)
     .get('/reset_password_confirm', resetPasswordConfirm)

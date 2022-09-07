@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const cardSchema = new Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: [true, 'Card name is required'] },
     userId: { type: Schema.Types.ObjectId, ref: 'users' },
     cardTypeId: { type: Schema.Types.ObjectId, ref: 'cardTypes' },
     urlPath: String,

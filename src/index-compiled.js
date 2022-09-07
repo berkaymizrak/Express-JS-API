@@ -74,7 +74,6 @@ const runServer = async () => {
   }); // error handler
 
   app.use((error, req, res, next) => {
-    console.log(error);
     logger.error(error);
     const {
       status,
@@ -92,7 +91,7 @@ const runServer = async () => {
       timestamp: new Date(),
       success,
       message: mes,
-      detailed_message: 'message'
+      detailed_message: err.message
     });
   });
   app.listen(port, () => {

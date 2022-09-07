@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const cardTypeSchema = new Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: [true, 'Card Type name is required'] },
     icon: String,
     base_url: String,
     active: { type: Boolean, default: true },

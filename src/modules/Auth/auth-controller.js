@@ -23,34 +23,35 @@ function createCredentials(username) {
     };
 }
 
-const createUser = async (req, res, next) => {
+const signupController = async (req, res, next) => {
     const { username, email } = req.body;
 
     const filters = { $or: [{ username }, { email }] };
-    return await userFindQuery(req.query, { filters, limit: 1 })
-        .then(async responseFindQuery => {
-            if (!responseFindQuery.success && responseFindQuery.status !== 200)
-                return next(responseFindQuery);
-            if (responseFindQuery.data.length > 0) {
-                return next({
-                    status: 409,
-                    success: false,
-                    mes: 'Username or Email already exists',
-                });
-            } else {
-                return await userCreateQuery(req.body)
-                    .then(responseCreateQuery => {
-                        responseCreateQuery['credentials'] = createCredentials(username);
-                        return next(responseCreateQuery);
-                    })
-                    .catch(err => {
-                        return next({ mes: 'Error creating user', err });
-                    });
-            }
-        })
-        .catch(err => {
-            return next({ mes: 'Error creating user', err });
-        });
+    return next(
+        await userFindQuery(req.query, { filters, limit: 1 })
+            .then(async responseFindQuery => {
+                if (!responseFindQuery.success && responseFindQuery.status !== 200) return responseFindQuery;
+                if (responseFindQuery.data.length > 0) {
+                    return {
+                        status: 409,
+                        success: false,
+                        mes: 'Username or Email already exists',
+                    };
+                } else {
+                    return await userCreateQuery(req.body)
+                        .then(responseCreateQuery => {
+                            responseCreateQuery['credentials'] = createCredentials(username);
+                            return responseCreateQuery;
+                        })
+                        .catch(err => {
+                            return { mes: 'Error creating user', err };
+                        });
+                }
+            })
+            .catch(err => {
+                return { mes: 'Error creating user', err };
+            })
+    );
 };
 
 const loginUser = async (req, res, next) => {
@@ -251,4 +252,11 @@ const listTokens = async (req, res, next) => {
     return next(await tokenFindQuery(req.query, {}));
 };
 
-export { createUser, loginUser, resetPasswordRequest, resetPasswordConfirm, resetPasswordDone, listTokens };
+export {
+    signupController,
+    loginUser,
+    resetPasswordRequest,
+    resetPasswordConfirm,
+    resetPasswordDone,
+    listTokens,
+};
