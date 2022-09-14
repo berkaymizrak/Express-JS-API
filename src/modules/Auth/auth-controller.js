@@ -58,100 +58,116 @@ const signupController = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
     const { usernameOrEmail, password } = req.body;
 
-    return await isEmailValid(usernameOrEmail).then(async isEmail => {
-        const filters = {};
-        if (isEmail) {
-            filters.email = usernameOrEmail;
-        } else {
-            filters.username = usernameOrEmail;
-        }
-        const projection = { __v: 0 };
-        return next(
-            await userFindQuery(req.query, { filters, projection, limit: 1 })
-                .then(async responseFindQuery => {
-                    if (!responseFindQuery.success && responseFindQuery.status !== 200)
-                        return next(responseFindQuery);
-                    if (responseFindQuery.data.length > 0) {
-                        const responseData = responseFindQuery.data[0];
-                        return await responseData
-                            .comparePassword(password)
-                            .then(async isMatch => {
-                                if (isMatch) {
-                                    responseData.password = undefined;
-                                    return {
-                                        status: 200,
-                                        success: true,
-                                        mes: 'User logged in successfully',
-                                        data: responseData,
-                                        credentials: createCredentials(responseData.username),
-                                    };
-                                } else {
-                                    return {
-                                        status: 401,
-                                        success: false,
-                                        mes: 'Incorrect password',
-                                    };
-                                }
-                            })
-                            .catch(err => {
-                                return { mes: 'Error logging in user', err };
-                            });
-                    } else {
-                        return {
-                            status: 401,
-                            success: false,
-                            mes: 'Incorrect Password or Username',
-                        };
-                    }
-                })
-                .catch(err => {
-                    return { mes: 'Error logging in user', err };
-                })
-        );
-    });
+    return await isEmailValid(usernameOrEmail)
+        .then(async isEmail => {
+            const filters = {};
+            if (isEmail) {
+                filters.email = usernameOrEmail;
+            } else {
+                filters.username = usernameOrEmail;
+            }
+            const projection = { __v: 0 };
+            return next(
+                await userFindQuery(req.query, { filters, projection, limit: 1 })
+                    .then(async responseFindQuery => {
+                        if (!responseFindQuery.success && responseFindQuery.status !== 200)
+                            return next(responseFindQuery);
+                        if (responseFindQuery.data.length > 0) {
+                            const responseData = responseFindQuery.data[0];
+                            return await responseData
+                                .comparePassword(password)
+                                .then(async isMatch => {
+                                    if (isMatch) {
+                                        responseData.password = undefined;
+                                        return {
+                                            status: 200,
+                                            success: true,
+                                            mes: 'User logged in successfully',
+                                            data: responseData,
+                                            credentials: createCredentials(responseData.username),
+                                        };
+                                    } else {
+                                        return {
+                                            status: 401,
+                                            success: false,
+                                            mes: 'Incorrect password',
+                                        };
+                                    }
+                                })
+                                .catch(err => {
+                                    return { mes: 'Error logging in user', err };
+                                });
+                        } else {
+                            return {
+                                status: 401,
+                                success: false,
+                                mes: 'Incorrect Password or Username',
+                            };
+                        }
+                    })
+                    .catch(err => {
+                        return { mes: 'Error logging in user', err };
+                    })
+            );
+        })
+        .catch(err => {
+            return { mes: 'Error logging in user', err };
+        });
 };
 
 const resetPasswordRequest = async (req, res, next) => {
-    const { email } = req.body;
-    const filters = { email };
-    return await userFindQuery(req.query, { filters, limit: 1 })
-        .then(async responseFindQuery => {
-            if (!responseFindQuery.success) {
-                return next(responseFindQuery);
+    const { usernameOrEmail } = req.body;
+    return await isEmailValid(usernameOrEmail)
+        .then(async isEmail => {
+            const filters = {};
+            if (isEmail) {
+                filters.email = usernameOrEmail;
+            } else {
+                filters.username = usernameOrEmail;
             }
-            if (!responseFindQuery.count) {
-                return next({
-                    status: 200,
-                    success: false,
-                    mes: 'User not found',
+
+            return await userFindQuery(req.query, { filters, limit: 1 })
+                .then(async responseFindQuery => {
+                    if (!responseFindQuery.success) {
+                        return next(responseFindQuery);
+                    }
+                    if (!responseFindQuery.count) {
+                        return next({
+                            status: 200,
+                            success: false,
+                            mes: 'User not found',
+                        });
+                    }
+
+                    const user = responseFindQuery.data[0];
+                    const userId = user._id;
+                    const filters = { userId };
+                    await tokenDeleteQuery(filters);
+
+                    let token = crypto.randomBytes(32).toString('hex');
+
+                    await tokenCreateQuery({
+                        userId,
+                        token,
+                    });
+
+                    const link = `${frontendUrl}reset_password_confirm?token=${token}&userId=${userId}`;
+                    const mailPayload = {
+                        fullName: `${user.firstName} ${user.lastName}`,
+                        link,
+                    };
+                    return next(
+                        await sendMailTemplate(
+                            user.email,
+                            'Reset Password Request',
+                            'resetPasswordRequest',
+                            mailPayload
+                        )
+                    );
+                })
+                .catch(err => {
+                    return next({ mes: 'Error requesting password reset', err });
                 });
-            }
-
-            const user = responseFindQuery.data[0];
-            const userId = user._id;
-            const filters = { userId };
-            await tokenDeleteQuery(filters);
-
-            let token = crypto.randomBytes(32).toString('hex');
-
-            await tokenCreateQuery({
-                userId,
-                token,
-            });
-
-            const link = `${frontendUrl}reset_password_confirm?token=${token}&userId=${userId}`;
-            const mailPayload = {
-                fullName: `${user.firstName} ${user.lastName}`,
-                link,
-            };
-            return next(
-                await sendMailTemplate(
-                    user.email,
-                    'Reset Password Request',
-                    'resetPasswordRequest',
-                    mailPayload
-                )
-            );
         })
         .catch(err => {
             return next({ mes: 'Error requesting password reset', err });
