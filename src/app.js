@@ -20,12 +20,7 @@ import {
     publicRoutes,
 } from './middlewares/router-bundler.js';
 
-// import AdminJSExpress from '@adminjs/express';
-// import { userFindQuery } from './modules/User/user-query.js';
-// import adminAuth from './middlewares/admin-auth.js';
-// import AdminJS from 'adminjs';
-// import AdminJSMongoose from '@adminjs/mongoose';
-// import dbConnection from './services/db.js';
+// TODO: remove below testing code
 import adminRouter from './modules/Admin/admin-router.js';
 
 const __filename = fileURLToPath(import.meta.url);
