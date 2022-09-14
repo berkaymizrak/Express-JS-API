@@ -29,7 +29,7 @@ const runServer = async () => {
 
   app.use(session(sessionOptions)); // DB connection is done in admin-router.js > admin-config.js
 
-  app.use('/api/admin', adminRouter);
+  app.use('/api/admin', await adminRouter);
   app.use(express.json());
   app.use(express.urlencoded({
     extended: false
