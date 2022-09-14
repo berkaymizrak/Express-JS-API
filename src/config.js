@@ -21,8 +21,8 @@ const port = process.env.PORT || 3001;
 const apiUrl = process.env.API_URL || 'http://localhost:3001';
 // FRONTEND_URL ends with a slash
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001/';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'secret';
-const COOKIES_SECRET = process.env.COOKIES_SECRET || 'secret';
+const sessionSecret = process.env.SESSION_SECRET || 'secret';
+const cookiePassword = process.env.COOKIE_PASSWORD || 'secret';
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS512';
 const JWT_REFRESH_ALGORITHM = process.env.JWT_REFRESH_ALGORITHM || 'HS256';
@@ -69,7 +69,7 @@ function genuuid() {
 }
 const sessionOptions = {
     genid: genuuid,
-    secret: SESSION_SECRET,
+    secret: sessionSecret,
     saveUninitialized: false, // don't create session until something stored
     resave: false, //don't save session if unmodified
     store: MongoStore.create({
@@ -79,7 +79,7 @@ const sessionOptions = {
         autoRemoveInterval: 360, // In minutes (Default: 10)
         touchAfter: 24 * 3600, // time period in seconds (Default: 24 hours),
         crypto: {
-            secret: COOKIES_SECRET,
+            secret: cookiePassword,
         },
     }),
     cookie: {
@@ -102,5 +102,6 @@ export {
     JWT_REFRESH_ALGORITHM,
     env,
     resultLimit,
+    cookiePassword,
     sessionOptions,
 };

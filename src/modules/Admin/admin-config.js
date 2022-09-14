@@ -7,7 +7,7 @@ AdminJS.registerAdapter(AdminJSMongoose);
 const mongooseDb = await dbConnection();
 
 // Full doc: https://docs.adminjs.co/tutorial-customizing-resources.html
-const adminJs = await new AdminJS({
+const adminJs = new AdminJS({
     databases: [mongooseDb],
     resources: [],
     rootPath: '/api/admin',
