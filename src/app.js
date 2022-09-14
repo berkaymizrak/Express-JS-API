@@ -15,10 +15,8 @@ import createPaging from './services/createPaging.js';
 import middleWares from './middlewares/middleWareHandler.js';
 import verifyToken from './middlewares/verify-token.js';
 
-import { adminRoutes, privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
-
-// TODO: remove below testing code
-// import adminRouter from './modules/Admin/admin-router.js';
+import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
+import adminRouter from './modules/Admin/admin-router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,11 +30,8 @@ const runServer = async () => {
     }
     app.use(session(sessionOptions));
 
-    // app.use('/api/admin', await adminRouter);
     // DB connection is done in admin-router.js > admin-config.js
-    for (const route of adminRoutes) {
-        app.use('/api/admin', await route);
-    }
+    app.use('/api/admin', await adminRouter);
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
