@@ -11,10 +11,8 @@ import createPaging from './services/createPaging.js'; // Middlewares
 
 import middleWares from './middlewares/middleWareHandler.js';
 import verifyToken from './middlewares/verify-token.js';
-import { // adminRoutes,
-privateRoutes, publicRoutes } from './middlewares/router-bundler.js'; // TODO: remove below testing code
-
-import adminRouter from './modules/Admin/admin-router.js';
+import { adminRoutes, privateRoutes, publicRoutes } from './middlewares/router-bundler.js'; // TODO: remove below testing code
+// import adminRouter from './modules/Admin/admin-router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -29,10 +27,9 @@ const runServer = async () => {
     sessionOptions.cookie.secure = true; // serve secure cookies
   }
 
-  app.use(session(sessionOptions));
-  app.use('/api/admin', await adminRouter); // DB connection is done in admin-router.js > admin-config.js
-  // adminRoutes.forEach(route => app.use('/api/admin', route));
+  app.use(session(sessionOptions)); // DB connection is done in admin-router.js > admin-config.js
 
+  adminRoutes.forEach(route => app.use('/api/admin', route));
   app.use(express.json());
   app.use(express.urlencoded({
     extended: false
