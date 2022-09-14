@@ -3,7 +3,13 @@
   "builds": [
     {
       "src": "./src/index-compiled.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "/src/.adminjs/**",
+          "/.adminjs/**"
+        ]
+      }
     }
   ],
   "routes": [
