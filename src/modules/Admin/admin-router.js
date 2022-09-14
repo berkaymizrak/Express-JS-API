@@ -1,6 +1,6 @@
 import AdminJSExpress from '@adminjs/express';
 import { userFindQuery } from '../User/user-query.js';
-// import adminAuth from '../../middlewares/admin-auth.js';
+import adminAuth from '../../middlewares/admin-auth.js';
 import { sessionOptions } from '../../config.js';
 import adminJs from './admin-config.js';
 
@@ -30,7 +30,7 @@ const adminRouter = await AdminJSExpress.buildAuthenticatedRouter(
             );
         },
     },
-    null,
+    adminAuth,
     sessionOptions
 );
 
