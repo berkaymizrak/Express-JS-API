@@ -83,7 +83,9 @@ const runServer = async () => {
     let {
       success
     } = error;
-    if (!success) success = false; // set locals, only providing error in development
+    if (!success) success = false;
+    let err_message;
+    if (err) err_message = err.message; // set locals, only providing error in development
     // res.locals.message = err.message;
     // res.locals.error = env.development ? err : {};
 
@@ -91,7 +93,7 @@ const runServer = async () => {
       timestamp: new Date(),
       success,
       message: mes,
-      detailed_message: err.message
+      detailed_message: err_message
     });
   });
   app.listen(port, () => {
