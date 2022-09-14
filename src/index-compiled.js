@@ -27,9 +27,13 @@ const runServer = async () => {
     sessionOptions.cookie.secure = true; // serve secure cookies
   }
 
-  app.use(session(sessionOptions)); // DB connection is done in admin-router.js > admin-config.js
+  app.use(session(sessionOptions)); // app.use('/api/admin', await adminRouter);
+  // DB connection is done in admin-router.js > admin-config.js
 
-  adminRoutes.forEach(route => app.use('/api/admin', route));
+  for (const route of adminRoutes) {
+    app.use('/api/admin', await route);
+  }
+
   app.use(express.json());
   app.use(express.urlencoded({
     extended: false
