@@ -5,6 +5,9 @@ import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// config
+import { port, logger, env } from './config.js';
+
 // services
 import createPaging from './services/createPaging.js';
 
@@ -12,9 +15,6 @@ import createPaging from './services/createPaging.js';
 import middleWares from './middlewares/middleWareHandler.js';
 import verifyToken from './middlewares/verify-token.js';
 import { adminRoutes, privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
-
-// config
-import { port, logger, env, sessionOptions } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,7 +26,7 @@ const runServer = async () => {
         app.set('trust proxy', 1); // trust first proxy
         sessionOptions.cookie.secure = true; // serve secure cookies
     }
-    app.use(session(sessionOptions));
+    // app.use(session(sessionOptions));
 
     // DB connection is done in admin-router.js > admin-config.js
     adminRoutes.forEach(route => app.use('/api/admin', route));

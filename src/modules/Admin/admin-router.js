@@ -4,7 +4,7 @@ import adminAuth from '../../middlewares/admin-auth.js';
 import { sessionOptions } from '../../config.js';
 import adminJs from './admin-config.js';
 
-const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
+const adminRouter = await AdminJSExpress.buildAuthenticatedRouter(
     adminJs,
     {
         authenticate: async (email, password) => {
