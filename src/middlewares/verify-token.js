@@ -19,6 +19,7 @@ const verifyToken = async (req, res, next) => {
         return next(
             await jwt.verify(useToken, JWT_SECRET, (err, decoded) => {
                 if (err) {
+                    req.session.user = null;
                     return {
                         status: 401,
                         success: false,
@@ -26,12 +27,13 @@ const verifyToken = async (req, res, next) => {
                         err,
                     };
                 } else {
-                    req.decoded = decoded;
+                    req.session.user = decoded;
                     return;
                 }
             })
         );
     } else {
+        req.session.user = null;
         return next({
             status: 401,
             success: false,

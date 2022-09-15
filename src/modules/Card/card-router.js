@@ -1,5 +1,4 @@
 import express from 'express';
-const cardRouter = express.Router();
 import {
     listCards,
     listDetailedCards,
@@ -10,14 +9,17 @@ import {
     deleteCard,
 } from './card-controller.js';
 import setPaginationParams from '../../middlewares/pagination-params.js';
+import adminRequired from '../../middlewares/admin-required.js';
+
+const cardRouter = express.Router();
 
 cardRouter
-    .get('/cards', setPaginationParams, listCards)
-    .get('/cards/detailed', setPaginationParams, listDetailedCards)
-    .get('/cards/detailed/:id', getDetailedCard)
-    .get('/cards/:id', getCard)
-    .post('/cards', createCard)
-    .put('/cards/:id', updateCard)
-    .delete('/cards/:id', deleteCard);
+    .get('/cards', adminRequired, setPaginationParams, listCards)
+    .get('/cards/detailed', adminRequired, setPaginationParams, listDetailedCards)
+    .get('/cards/detailed/:id', adminRequired, getDetailedCard)
+    .get('/cards/:id', adminRequired, getCard)
+    .post('/cards', adminRequired, createCard)
+    .put('/cards/:id', adminRequired, updateCard)
+    .delete('/cards/:id', adminRequired, deleteCard);
 
 export default cardRouter;

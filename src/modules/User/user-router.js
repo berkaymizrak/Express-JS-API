@@ -1,5 +1,4 @@
 import express from 'express';
-const userRouter = express.Router();
 import {
     getUser,
     listDetailedUsers,
@@ -9,13 +8,16 @@ import {
     deleteUser,
 } from './user-controller.js';
 import setPaginationParams from '../../middlewares/pagination-params.js';
+import adminRequired from '../../middlewares/admin-required.js';
+
+const userRouter = express.Router();
 
 userRouter
-    .get('/users', setPaginationParams, listUsers)
-    .get('/users/detailed', setPaginationParams, listDetailedUsers)
-    .get('/users/detailed/:id', getDetailedUser)
-    .get('/users/:id', getUser)
-    .put('/users/:id', updateUser)
-    .delete('/users/:id', deleteUser);
+    .get('/users', adminRequired, setPaginationParams, listUsers)
+    .get('/users/detailed', adminRequired, setPaginationParams, listDetailedUsers)
+    .get('/users/detailed/:id', adminRequired, getDetailedUser)
+    .get('/users/:id', adminRequired, getUser)
+    .put('/users/:id', adminRequired, updateUser)
+    .delete('/users/:id', adminRequired, deleteUser);
 
 export default userRouter;

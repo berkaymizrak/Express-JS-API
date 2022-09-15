@@ -172,13 +172,14 @@ const userFindDetailedQuery = async (
 };
 
 const userCreateQuery = async body => {
-    const { username, firstName, lastName, email, password } = body;
+    const { username, firstName, lastName, email, password, role } = body;
     return await new users({
         username,
         firstName,
         lastName,
         email,
         password,
+        role,
     })
         .save()
         .then(data => {

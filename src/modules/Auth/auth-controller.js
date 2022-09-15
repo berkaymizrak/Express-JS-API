@@ -6,9 +6,10 @@ import isEmailValid from '../../services/emailValidator.js';
 import { tokenCreateQuery, tokenDeleteQuery, tokenFindQuery } from './token-query.js';
 import crypto from 'crypto';
 
-function createToken(username, algorithm, expiresIn) {
+function createToken({ username, role }, algorithm, expiresIn) {
     const payload = {
         username,
+        role,
     };
     return jwt.sign(payload, JWT_SECRET, {
         algorithm: algorithm,
@@ -16,11 +17,11 @@ function createToken(username, algorithm, expiresIn) {
     });
 }
 
-function createCredentials(username) {
+function createCredentials(user) {
     return {
         tokenType: 'Bearer',
-        accessToken: createToken(username, JWT_ALGORITHM, '6h'),
-        refreshToken: createToken(username, JWT_REFRESH_ALGORITHM, '1d'),
+        accessToken: createToken(user, JWT_ALGORITHM, '6h'),
+        refreshToken: createToken(user, JWT_REFRESH_ALGORITHM, '1d'),
     };
 }
 
@@ -41,7 +42,7 @@ const signupController = async (req, res, next) => {
                 } else {
                     return await userCreateQuery(req.body)
                         .then(responseCreateQuery => {
-                            responseCreateQuery['credentials'] = createCredentials(username);
+                            responseCreateQuery['credentials'] = createCredentials(req.body);
                             return responseCreateQuery;
                         })
                         .catch(err => {
@@ -84,7 +85,7 @@ const loginUser = async (req, res, next) => {
                                             success: true,
                                             mes: 'User logged in successfully',
                                             data: responseData,
-                                            credentials: createCredentials(responseData.username),
+                                            credentials: createCredentials(responseData),
                                         };
                                     } else {
                                         return {
