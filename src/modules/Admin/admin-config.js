@@ -1,7 +1,7 @@
 import AdminJS from 'adminjs';
 import AdminJSMongoose from '@adminjs/mongoose';
 import dbConnection from '../../services/db.js';
-import { bucketParams, logger, s3 } from '../../config.js';
+import { bucketParams, env, logger, s3 } from '../../config.js';
 
 AdminJS.registerAdapter(AdminJSMongoose);
 
@@ -30,12 +30,16 @@ const adminJs = new AdminJS({
 });
 
 bucketParams.Key = 'static/images/logo.svg';
-s3.getSignedUrl('getObject', bucketParams, (err, url) => {
-    if (err) {
-        logger.error('AWS Fetch Error:', err);
-    } else {
-        adminJs.options.branding.logo = url;
-    }
-});
+if (env.development) {
+    adminJs.options.branding.logo = '/' + bucketParams.Key;
+} else {
+    s3.getSignedUrl('getObject', bucketParams, (err, url) => {
+        if (err) {
+            logger.error('AWS Fetch Error:', err);
+        } else {
+            adminJs.options.branding.logo = url;
+        }
+    });
+}
 
 export default adminJs;

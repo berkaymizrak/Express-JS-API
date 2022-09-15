@@ -284,4 +284,5 @@ dist
 
 media/
 staticfiles/
+static/
 
