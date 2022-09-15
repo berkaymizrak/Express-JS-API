@@ -11,7 +11,7 @@ import { port, logger, env, sessionOptions, __dirname } from './config.js';
 import createPaging from './services/createPaging.js';
 
 // Middlewares
-import middleWares from './middlewares/middleWareHandler.js';
+import middlewares from './middlewares/middleware-handler.js';
 import verifyToken from './middlewares/verify-token.js';
 
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
@@ -35,7 +35,7 @@ const runServer = async () => {
 
     app.use('/static', express.static(path.join(__dirname, 'static')));
 
-    middleWares.forEach(middleware => app.use(middleware));
+    middlewares.forEach(middleware => app.use(middleware));
     publicRoutes.forEach(route => app.use('/api/v1', route));
     privateRoutes.forEach(route => app.use('/api/v1', verifyToken, route));
 
