@@ -6,10 +6,11 @@ import isEmailValid from '../../services/emailValidator.js';
 import { tokenCreateQuery, tokenDeleteQuery, tokenFindQuery } from './token-query.js';
 import crypto from 'crypto';
 
-function createToken({ username, role }, algorithm, expiresIn) {
+function createToken({ username, role, _id }, algorithm, expiresIn) {
     const payload = {
         username,
         role,
+        _id,
     };
     return jwt.sign(payload, JWT_SECRET, {
         algorithm: algorithm,
