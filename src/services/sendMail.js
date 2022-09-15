@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
-import { env, fromEmail, mailAuth, mailService } from '../config.js';
+import { env, fromEmail, mailAuth, mailService, __dirname } from '../config.js';
 import path from 'path';
-import { __dirname } from '../app.js';
 import pug from 'pug';
 import Email from 'email-templates';
 

@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import crypto from 'crypto';
 import MongoStore from 'connect-mongo';
 import { createLogger, format, transports } from 'winston';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
@@ -88,6 +90,9 @@ const sessionOptions = {
     rolling: true, // forces resetting of max age
 };
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export {
     logger,
     mongoUri,
@@ -104,4 +109,5 @@ export {
     resultLimit,
     cookiePassword,
     sessionOptions,
+    __dirname,
 };

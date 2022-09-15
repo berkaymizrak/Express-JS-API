@@ -3,10 +3,9 @@ import express from 'express';
 // import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 // config
-import { port, logger, env, sessionOptions } from './config.js';
+import { port, logger, env, sessionOptions, __dirname } from './config.js';
 
 // services
 import createPaging from './services/createPaging.js';
@@ -17,9 +16,6 @@ import verifyToken from './middlewares/verify-token.js';
 
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 import adminRouter from './modules/Admin/admin-router.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const runServer = async () => {
     const app = express();
@@ -109,5 +105,3 @@ const runServer = async () => {
 };
 
 runServer();
-
-export { __dirname };
