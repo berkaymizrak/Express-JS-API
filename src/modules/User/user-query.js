@@ -21,21 +21,16 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
         .skip(skip)
         .sort(sorting)
         .then(async data => {
-            return await users
-                .count(filters)
-                .then(totalCount => {
-                    return {
-                        status: 200,
-                        success: true,
-                        mes: 'Users retrieved successfully',
-                        totalCount,
-                        count: data.length,
-                        data,
-                    };
-                })
-                .catch(err => {
-                    return { mes: 'Error fetching users', err };
-                });
+            return await users.count(filters).then(totalCount => {
+                return {
+                    status: 200,
+                    success: true,
+                    mes: 'Users retrieved successfully',
+                    totalCount,
+                    count: data.length,
+                    data,
+                };
+            });
         })
         .catch(err => {
             return { mes: 'Error fetching users', err };
@@ -150,21 +145,16 @@ const userFindDetailedQuery = async (
         ])
         .sort(sorting)
         .then(async data => {
-            return await users
-                .count(countFilters)
-                .then(totalCount => {
-                    return {
-                        status: 200,
-                        success: true,
-                        mes: 'Users retrieved successfully',
-                        totalCount,
-                        count: data.length,
-                        data,
-                    };
-                })
-                .catch(err => {
-                    return { mes: 'Error fetching users', err };
-                });
+            return await users.count(countFilters).then(totalCount => {
+                return {
+                    status: 200,
+                    success: true,
+                    mes: 'Users retrieved successfully',
+                    totalCount,
+                    count: data.length,
+                    data,
+                };
+            });
         })
         .catch(err => {
             return { mes: 'Error fetching users', err };

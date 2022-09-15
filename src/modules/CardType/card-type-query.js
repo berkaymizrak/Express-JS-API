@@ -21,21 +21,16 @@ const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, l
         .skip(skip)
         .sort(sorting)
         .then(async data => {
-            return await cardTypes
-                .count(filters)
-                .then(totalCount => {
-                    return {
-                        status: 200,
-                        success: true,
-                        mes: 'Card Types retrieved successfully',
-                        totalCount,
-                        count: data.length,
-                        data,
-                    };
-                })
-                .catch(err => {
-                    return { mes: 'Error fetching card types', err };
-                });
+            return await cardTypes.count(filters).then(totalCount => {
+                return {
+                    status: 200,
+                    success: true,
+                    mes: 'Card Types retrieved successfully',
+                    totalCount,
+                    count: data.length,
+                    data,
+                };
+            });
         })
         .catch(err => {
             return { mes: 'Error fetching card types', err };

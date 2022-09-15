@@ -21,21 +21,16 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
         .skip(skip)
         .sort(sorting)
         .then(async data => {
-            return await cards
-                .count(filters)
-                .then(totalCount => {
-                    return {
-                        status: 200,
-                        success: true,
-                        mes: 'Cards retrieved successfully',
-                        totalCount,
-                        count: data.length,
-                        data,
-                    };
-                })
-                .catch(err => {
-                    return { mes: 'Error fetching cards', err };
-                });
+            return await cards.count(filters).then(totalCount => {
+                return {
+                    status: 200,
+                    success: true,
+                    mes: 'Cards retrieved successfully',
+                    totalCount,
+                    count: data.length,
+                    data,
+                };
+            });
         })
         .catch(err => {
             return { mes: 'Error fetching cards', err };
@@ -116,21 +111,16 @@ const cardFindDetailedQuery = async (
         ])
         .sort(sorting)
         .then(async data => {
-            return await cards
-                .count(countFilters)
-                .then(totalCount => {
-                    return {
-                        status: 200,
-                        success: true,
-                        mes: 'Cards retrieved successfully',
-                        totalCount,
-                        count: data.length,
-                        data,
-                    };
-                })
-                .catch(err => {
-                    return { mes: 'Error fetching cards', err };
-                });
+            return await cards.count(countFilters).then(totalCount => {
+                return {
+                    status: 200,
+                    success: true,
+                    mes: 'Cards retrieved successfully',
+                    totalCount,
+                    count: data.length,
+                    data,
+                };
+            });
         })
         .catch(err => {
             return { mes: 'Error fetching cards', err };

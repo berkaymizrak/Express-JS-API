@@ -47,19 +47,14 @@ userSchema.methods.hashPassword = async function (password) {
     return await bcryptjs
         .genSalt(10)
         .then(async salt => {
-            return await bcryptjs
-                .hash(password, salt)
-                .then(hash => {
-                    return {
-                        status: 200,
-                        success: true,
-                        mes: 'Password hashed successfully',
-                        data: hash,
-                    };
-                })
-                .catch(err => {
-                    return { mes: 'Error hashing password', err };
-                });
+            return await bcryptjs.hash(password, salt).then(hash => {
+                return {
+                    status: 200,
+                    success: true,
+                    mes: 'Password hashed successfully',
+                    data: hash,
+                };
+            });
         })
         .catch(err => {
             return { mes: 'Error hashing password', err };
