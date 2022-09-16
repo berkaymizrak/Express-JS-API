@@ -73,7 +73,7 @@ const loginUser = async (req, res, next) => {
                         if (responseFindQuery.data.length > 0) {
                             const responseData = responseFindQuery.data[0];
                             return await responseData.comparePassword(password).then(async isMatch => {
-                                if (isMatch) {
+                                if (isMatch.success) {
                                     responseData.password = undefined;
                                     return {
                                         status: 200,
