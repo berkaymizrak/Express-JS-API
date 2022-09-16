@@ -1,5 +1,6 @@
 import { userDeleteQuery, userFindQuery, userFindDetailedQuery, userUpdateQuery } from './user-query.js';
 import mongoose from 'mongoose';
+import { uploadPPService } from '../../services/uploadFile.js';
 
 const listUsers = async (req, res, next) => {
     return next(await userFindQuery(req.query, {}));
@@ -53,21 +54,27 @@ const deleteUser = async (req, res, next) => {
 };
 
 const uploadProfilePicture = async (req, res, next) => {
-    const { file } = req;
-    return await userUpdateQuery({ _id: req.session.user._id }, { profilePicture: file.location }).then(
-        responseUpdateQuery => {
-            let mes;
-            if (responseUpdateQuery.success) {
-                mes = 'Profile picture uploaded successfully';
-            } else {
-                mes = 'An error occurred while uploading profile picture';
-            }
-            return next({
-                ...responseUpdateQuery,
-                mes,
-            });
+    const error_message = 'An error occurred while uploading profile picture';
+    return await uploadPPService.single('file')(req, res, async function (error) {
+        if (error) {
+            return next({ mes: error_message, error });
         }
-    );
+        const { file } = req;
+        return await userUpdateQuery({ _id: req.session.user._id }, { profilePicture: file.location }).then(
+            responseUpdateQuery => {
+                let mes;
+                if (responseUpdateQuery.success) {
+                    mes = 'Profile picture uploaded successfully';
+                } else {
+                    mes = error_message;
+                }
+                return next({
+                    ...responseUpdateQuery,
+                    mes,
+                });
+            }
+        );
+    });
 };
 
 export {
