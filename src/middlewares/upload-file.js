@@ -18,14 +18,9 @@ const uploadPPMiddleware = multer({
             });
         },
         key: function (req, file, next) {
-            next(
-                null,
-                file.originalname.replace(/\.[^/.]+$/, '') +
-                    '_' +
-                    Date.now().toString() +
-                    '.' +
-                    file.originalname.split('.').pop()
-            );
+            const newFileName = `${req.session.user.username}-${Date.now()}-${file.originalname}`;
+            const fullPath = 'static/profile_pictures/' + newFileName;
+            next(null, fullPath);
         },
     }),
 });
