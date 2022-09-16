@@ -52,4 +52,30 @@ const deleteUser = async (req, res, next) => {
     return next(await userDeleteQuery(filters));
 };
 
-export { listUsers, listDetailedUsers, getDetailedUser, getUser, updateUser, deleteUser };
+const uploadProfilePicture = async (req, res, next) => {
+    const { file } = req;
+    return await userUpdateQuery({ _id: req.session.user._id }, { profilePicture: file.location }).then(
+        responseUpdateQuery => {
+            let mes;
+            if (responseUpdateQuery.success) {
+                mes = 'Profile picture uploaded successfully';
+            } else {
+                mes = 'An error occurred while uploading profile picture';
+            }
+            return next({
+                ...responseUpdateQuery,
+                mes,
+            });
+        }
+    );
+};
+
+export {
+    listUsers,
+    listDetailedUsers,
+    getDetailedUser,
+    getUser,
+    updateUser,
+    deleteUser,
+    uploadProfilePicture,
+};

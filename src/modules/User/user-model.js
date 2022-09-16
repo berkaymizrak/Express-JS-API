@@ -22,6 +22,7 @@ const userSchema = new Schema({
     lastName: { type: String, required: [true, 'Last name is required'] },
     email: { type: String, required: [true, 'Email is required'], unique: true, dropDups: true },
     password: { type: String, required: [true, 'Password is required'], minLength: 6, maxLength: 200 },
+    profilePicture: { type: String, default: 'default.jpg' },
     role: {
         type: String,
         enum: ['admin', 'member'],

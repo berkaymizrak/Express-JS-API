@@ -1,7 +1,9 @@
 import AdminJS from 'adminjs';
 import AdminJSMongoose from '@adminjs/mongoose';
 import dbConnection from '../../services/db.js';
-import { bucketParams, env, logger, s3 } from '../../config.js';
+import { bucketName, env, s3Client } from '../../config.js';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 AdminJS.registerAdapter(AdminJSMongoose);
 
@@ -29,17 +31,12 @@ const adminJs = new AdminJS({
     },
 });
 
-bucketParams.Key = 'static/images/logo.svg';
+const logoKey = 'static/images/logo.svg';
 if (env.development) {
-    adminJs.options.branding.logo = '/' + bucketParams.Key;
+    adminJs.options.branding.logo = '/' + logoKey;
 } else {
-    s3.getSignedUrl('getObject', bucketParams, (err, url) => {
-        if (err) {
-            logger.error('AWS Fetch Error:', err);
-        } else {
-            adminJs.options.branding.logo = url;
-        }
-    });
+    const command = new GetObjectCommand({ Bucket: bucketName, Key: logoKey });
+    adminJs.options.branding.logo = await getSignedUrl(s3Client, command);
 }
 
 export default adminJs;

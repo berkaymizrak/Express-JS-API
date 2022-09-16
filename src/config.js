@@ -4,7 +4,7 @@ import MongoStore from 'connect-mongo';
 import { createLogger, format, transports } from 'winston';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import AWS from 'aws-sdk';
+import { S3Client } from '@aws-sdk/client-s3';
 
 dotenv.config();
 
@@ -94,15 +94,15 @@ const sessionOptions = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Set the region
-AWS.config.update({ region: 'eu-central-1' });
-
-// Create S3 service object
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+const s3Client = new S3Client({
+    region: process.env.AWS_S3_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+    },
 });
-const bucketParams = { Bucket: process.env.AWS_S3_BUCKET_NAME };
+
+const bucketName = process.env.AWS_S3_BUCKET_NAME;
 
 export {
     logger,
@@ -121,6 +121,6 @@ export {
     cookiePassword,
     sessionOptions,
     __dirname,
-    s3,
-    bucketParams,
+    s3Client,
+    bucketName,
 };

@@ -88,7 +88,7 @@ const runServer = async () => {
       success,
       message: mes,
       detail: error ? error.message : undefined,
-      error: error.stack
+      error: error ? error.stack : undefined
     });
   });
   app.listen(port, () => {
