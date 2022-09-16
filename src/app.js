@@ -75,7 +75,7 @@ const runServer = async () => {
     });
 
     // error handler
-    app.use((err, req, res) => {
+    app.use((err, req, res, next) => {
         logger.error(err);
         const { status, mes, error } = err;
         let { success } = err;
@@ -90,7 +90,7 @@ const runServer = async () => {
             success,
             message: mes,
             detail: error ? error.message : undefined,
-            error,
+            error: error.stack,
         });
     });
 
