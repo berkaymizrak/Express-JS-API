@@ -25,8 +25,8 @@ const tokenFindQuery = async (queryParams, { filters, projection, sorting, limit
                 };
             });
         })
-        .catch(err => {
-            return { mes: 'Error fetching tokens', err };
+        .catch(error => {
+            return { mes: 'Error fetching tokens', error };
         });
 };
 
@@ -45,8 +45,8 @@ const tokenCreateQuery = async body => {
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error creating token', err };
+        .catch(error => {
+            return { mes: 'Error creating token', error };
         });
 };
 
@@ -61,8 +61,8 @@ const tokenDeleteQuery = async (filters, projection = { __v: 0 }) => {
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error deleting token', err };
+        .catch(error => {
+            return { mes: 'Error deleting token', error };
         });
 };
 

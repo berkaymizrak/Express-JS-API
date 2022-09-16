@@ -75,21 +75,23 @@ const runServer = async () => {
     });
 
     // error handler
-    app.use((error, req, res, next) => {
-        logger.error(error);
-        const { status, mes, err } = error;
-        let { success } = error;
+    app.use((err, req, res) => {
+        logger.error(err);
+        const { status, mes, error } = err;
+        let { success } = err;
         if (!success) success = false;
-        let err_message;
-        if (err) err_message = err.message;
 
         // set locals, only providing error in development
-        // res.locals.message = err.message;
-        // res.locals.error = env.development ? err : {};
+        // res.locals.message = error.message;
+        // res.locals.error = env.development ? error : {};
 
-        return res
-            .status(status || 500)
-            .send({ timestamp: new Date(), success, message: mes, detailed_message: err_message });
+        return res.status(status || 500).send({
+            timestamp: new Date(),
+            success,
+            message: mes,
+            detail: error ? error.message : undefined,
+            error,
+        });
     });
 
     app.listen(port, () => {

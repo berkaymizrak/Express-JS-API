@@ -32,8 +32,8 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
                 };
             });
         })
-        .catch(err => {
-            return { mes: 'Error fetching users', err };
+        .catch(error => {
+            return { mes: 'Error fetching users', error };
         });
 };
 
@@ -156,8 +156,8 @@ const userFindDetailedQuery = async (
                 };
             });
         })
-        .catch(err => {
-            return { mes: 'Error fetching users', err };
+        .catch(error => {
+            return { mes: 'Error fetching users', error };
         });
 };
 
@@ -180,8 +180,8 @@ const userCreateQuery = async body => {
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error creating user', err };
+        .catch(error => {
+            return { mes: 'Error creating user', error };
         });
 };
 
@@ -199,8 +199,8 @@ const userUpdateQuery = async (filters, update, projection = { __v: 0, password:
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error updating user', err };
+        .catch(error => {
+            return { mes: 'Error updating user', error };
         });
 };
 
@@ -215,8 +215,8 @@ const userDeleteQuery = async (filters, projection = { __v: 0, password: 0 }) =>
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error deleting user', err };
+        .catch(error => {
+            return { mes: 'Error deleting user', error };
         });
 };
 

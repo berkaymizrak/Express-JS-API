@@ -17,14 +17,14 @@ const verifyToken = async (req, res, next) => {
 
     if (useToken) {
         return next(
-            await jwt.verify(useToken, JWT_SECRET, (err, decoded) => {
-                if (err) {
+            await jwt.verify(useToken, JWT_SECRET, (error, decoded) => {
+                if (error) {
                     req.session.user = null;
                     return {
                         status: 401,
                         success: false,
                         mes: 'Token is not valid',
-                        err,
+                        error,
                     };
                 } else {
                     req.session.user = decoded;

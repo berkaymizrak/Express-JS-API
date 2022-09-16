@@ -8,8 +8,8 @@ const dbConnection = async () => {
         .on('open', () => {
             logger.info('MongoDB connection opened');
         })
-        .on('error', err => {
-            logger.error(err);
+        .on('error', error => {
+            logger.error(error);
         })
         .on('disconnected', () => {
             logger.warn('MongoDB disconnected');

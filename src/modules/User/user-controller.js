@@ -22,8 +22,8 @@ const getDetailedUser = async (req, res, next) => {
         filters.push({
             $match: { _id: mongoose.Types.ObjectId(id) },
         });
-    } catch (err) {
-        return next({ mes: 'Error fetching users', err });
+    } catch (error) {
+        return next({ mes: 'Error fetching users', error });
     }
     const countFilters = { _id: id };
     return await userFindDetailedQuery(req.query, { filters, countFilters, limit: 1 })
@@ -35,8 +35,8 @@ const getDetailedUser = async (req, res, next) => {
             responseFindDetailedQuery['data'] = data;
             return next(responseFindDetailedQuery);
         })
-        .catch(err => {
-            return next({ mes: 'Error fetching user', err });
+        .catch(error => {
+            return next({ mes: 'Error fetching user', error });
         });
 };
 

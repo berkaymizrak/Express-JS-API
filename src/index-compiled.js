@@ -69,27 +69,26 @@ const runServer = async () => {
     });
   }); // error handler
 
-  app.use((error, req, res, next) => {
-    logger.error(error);
+  app.use((err, req, res, next) => {
+    logger.error(err);
     const {
       status,
       mes,
-      err
-    } = error;
+      error
+    } = err;
     let {
       success
-    } = error;
-    if (!success) success = false;
-    let err_message;
-    if (err) err_message = err.message; // set locals, only providing error in development
-    // res.locals.message = err.message;
-    // res.locals.error = env.development ? err : {};
+    } = err;
+    if (!success) success = false; // set locals, only providing error in development
+    // res.locals.message = error.message;
+    // res.locals.error = env.development ? error : {};
 
     return res.status(status || 500).send({
       timestamp: new Date(),
       success,
       message: mes,
-      detailed_message: err_message
+      detail: error ? error.message : undefined,
+      error
     });
   });
   app.listen(port, () => {

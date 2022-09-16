@@ -32,8 +32,8 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
                 };
             });
         })
-        .catch(err => {
-            return { mes: 'Error fetching cards', err };
+        .catch(error => {
+            return { mes: 'Error fetching cards', error };
         });
 };
 
@@ -122,8 +122,8 @@ const cardFindDetailedQuery = async (
                 };
             });
         })
-        .catch(err => {
-            return { mes: 'Error fetching cards', err };
+        .catch(error => {
+            return { mes: 'Error fetching cards', error };
         });
 };
 
@@ -144,8 +144,8 @@ const cardCreateQuery = async body => {
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error creating card', err };
+        .catch(error => {
+            return { mes: 'Error creating card', error };
         });
 };
 
@@ -160,8 +160,8 @@ const cardUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error deleting card', err };
+        .catch(error => {
+            return { mes: 'Error deleting card', error };
         });
 };
 
@@ -176,8 +176,8 @@ const cardDeleteQuery = async (filters, projection = { __v: 0 }) => {
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error deleting card', err };
+        .catch(error => {
+            return { mes: 'Error deleting card', error };
         });
 };
 

@@ -28,8 +28,8 @@ const getDetailedCard = async (req, res, next) => {
         filters.push({
             $match: { _id: mongoose.Types.ObjectId(id) },
         });
-    } catch (err) {
-        return next({ mes: 'Error fetching cards', err });
+    } catch (error) {
+        return next({ mes: 'Error fetching cards', error });
     }
     const countFilters = { _id: id };
     return await cardFindDetailedQuery(req.query, { filters, countFilters, limit: 1 })
@@ -41,8 +41,8 @@ const getDetailedCard = async (req, res, next) => {
             responseFindDetailedQuery['data'] = data;
             return next(responseFindDetailedQuery);
         })
-        .catch(err => {
-            return next({ mes: 'Error fetching card', err });
+        .catch(error => {
+            return next({ mes: 'Error fetching card', error });
         });
 };
 

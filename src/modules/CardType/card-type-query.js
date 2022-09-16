@@ -32,8 +32,8 @@ const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, l
                 };
             });
         })
-        .catch(err => {
-            return { mes: 'Error fetching card types', err };
+        .catch(error => {
+            return { mes: 'Error fetching card types', error };
         });
 };
 
@@ -53,8 +53,8 @@ const cardTypeCreateQuery = async body => {
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error creating card type', err };
+        .catch(error => {
+            return { mes: 'Error creating card type', error };
         });
 };
 
@@ -69,8 +69,8 @@ const cardTypeUpdateQuery = async (filters, update, projection = { __v: 0 }) => 
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error updating card type', err };
+        .catch(error => {
+            return { mes: 'Error updating card type', error };
         });
 };
 
@@ -85,8 +85,8 @@ const cardTypeDeleteQuery = async (filters, projection = { __v: 0 }) => {
                 data,
             };
         })
-        .catch(err => {
-            return { mes: 'Error deleting card type', err };
+        .catch(error => {
+            return { mes: 'Error deleting card type', error };
         });
 };
 

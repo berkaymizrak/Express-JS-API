@@ -19,8 +19,8 @@ const sendMail = async mailOptions => {
                 mes: 'Email sent successfully',
             };
         })
-        .catch(err => {
-            return { mes: 'Error sending email', err };
+        .catch(error => {
+            return { mes: 'Error sending email', error };
         });
 };
 
@@ -62,8 +62,8 @@ const sendMailTemplate = async (to, subject, template, payload) => {
                     mes: `Email sent successfully. ${payload.link}`,
                 };
             })
-            .catch(err => {
-                return { mes: 'Error sending email', err };
+            .catch(error => {
+                return { mes: 'Error sending email', error };
             });
     } else {
         const mailOptions = {

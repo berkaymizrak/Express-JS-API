@@ -38,8 +38,8 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
                         }
                     );
                 })
-                .catch(err => {
-                    logger.error('Admin login error:', err);
+                .catch(error => {
+                    logger.error('Admin login error:', error);
                     return;
                 });
         },

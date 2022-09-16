@@ -56,8 +56,8 @@ userSchema.methods.hashPassword = async function (password) {
                 };
             });
         })
-        .catch(err => {
-            return { mes: 'Error hashing password', err };
+        .catch(error => {
+            return { mes: 'Error hashing password', error };
         });
 };
 
@@ -72,8 +72,8 @@ userSchema.pre('save', async function (next) {
                     this.password = data.data;
                 }
             })
-            .catch(err => {
-                return next(err);
+            .catch(error => {
+                return next(error);
             });
     }
     return next();
@@ -91,8 +91,8 @@ userSchema.pre('findOneAndUpdate', async function (next) {
                     this._update.password = data.data;
                 }
             })
-            .catch(err => {
-                return next(err);
+            .catch(error => {
+                return next(error);
             });
     }
     return next();
@@ -108,8 +108,8 @@ userSchema.methods.comparePassword = async function (password) {
                 return { status: 400, success: false, mes: 'Password did not match' };
             }
         })
-        .catch(err => {
-            return { status: 500, success: false, err };
+        .catch(error => {
+            return { status: 500, success: false, error };
         });
 };
 

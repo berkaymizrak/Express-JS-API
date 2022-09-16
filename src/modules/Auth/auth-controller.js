@@ -47,8 +47,8 @@ const signupController = async (req, res, next) => {
                     });
                 }
             })
-            .catch(err => {
-                return { mes: 'Error creating user', err };
+            .catch(error => {
+                return { mes: 'Error creating user', error };
             })
     );
 };
@@ -101,8 +101,8 @@ const loginUser = async (req, res, next) => {
                 )
             );
         })
-        .catch(err => {
-            return { mes: 'Error logging in user', err };
+        .catch(error => {
+            return { mes: 'Error logging in user', error };
         });
 };
 
@@ -141,7 +141,7 @@ const resetPasswordRequest = async (req, res, next) => {
                     token,
                 });
 
-                const link = `${frontendUrl}reset_password_confirm?token=${token}&userId=${userId}`;
+                const link = `${frontendUrl}/reset_password_confirm?token=${token}&userId=${userId}`;
                 const mailPayload = {
                     fullName: `${user.firstName} ${user.lastName}`,
                     link,
@@ -156,8 +156,8 @@ const resetPasswordRequest = async (req, res, next) => {
                 );
             });
         })
-        .catch(err => {
-            return next({ mes: 'Error requesting password reset', err });
+        .catch(error => {
+            return next({ mes: 'Error requesting password reset', error });
         });
 };
 
@@ -194,8 +194,8 @@ const resetPasswordConfirm = async (req, res, next) => {
                 }
             );
         })
-        .catch(err => {
-            return next({ mes: 'Error confirming reset password', err });
+        .catch(error => {
+            return next({ mes: 'Error confirming reset password', error });
         });
 };
 
@@ -249,8 +249,8 @@ const resetPasswordDone = async (req, res, next) => {
                 }
             );
         })
-        .catch(err => {
-            return next({ mes: 'Error resetting password', err });
+        .catch(error => {
+            return next({ mes: 'Error resetting password', error });
         });
 };
 
