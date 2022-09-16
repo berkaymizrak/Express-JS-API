@@ -30,7 +30,14 @@ const upload = multer({
             });
         },
         key: function (req, file, next) {
-            next(null, Date.now().toString() + '_' + file.originalname);
+            next(
+                null,
+                file.originalname.replace(/\.[^/.]+$/, '') +
+                    '_' +
+                    Date.now().toString() +
+                    '.' +
+                    file.originalname.split('.').pop()
+            );
         },
     }),
 });
