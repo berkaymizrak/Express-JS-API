@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 import bcryptjs from 'bcryptjs';
+import { bucketName, env, s3Client } from '../../config.js';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // validate: {
 //     validator: function (el) {
@@ -8,6 +11,15 @@ import bcryptjs from 'bcryptjs';
 //     },
 //     message: "Passwords don't match.",
 // }
+
+const defaultPPKey = 'static/profile_pictures/default.jpg';
+let defaultPPPath;
+if (env.development) {
+    defaultPPPath = '/' + defaultPPKey;
+} else {
+    const command = new GetObjectCommand({ Bucket: bucketName, Key: defaultPPKey });
+    defaultPPPath = await getSignedUrl(s3Client, command);
+}
 
 const userSchema = new Schema({
     username: {
@@ -22,7 +34,7 @@ const userSchema = new Schema({
     lastName: { type: String, required: [true, 'Last name is required'] },
     email: { type: String, required: [true, 'Email is required'], unique: true, dropDups: true },
     password: { type: String, required: [true, 'Password is required'], minLength: 6, maxLength: 200 },
-    profilePicture: { type: String, default: 'default.jpg' },
+    profilePicture: { type: String, default: defaultPPPath },
     role: {
         type: String,
         enum: ['admin', 'member'],
