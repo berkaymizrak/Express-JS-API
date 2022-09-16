@@ -1,8 +1,8 @@
 import cors from 'cors';
-import { apiUrl } from '../config.js';
+import { frontendUrl } from '../config.js';
 
 const Cors = cors({
-    origin: apiUrl,
+    origin: frontendUrl,
 });
 
 const middleWares = [Cors];
