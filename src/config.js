@@ -22,8 +22,8 @@ const fromEmail = process.env.FROM_EMAIL;
 
 const port = process.env.PORT || 3001;
 const apiUrl = process.env.API_URL || 'http://localhost:3001';
-// FRONTEND_URL ends with a slash
-const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001/';
+// FRONTEND_URL ends without the slash
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 const sessionSecret = process.env.SESSION_SECRET || 'secret';
 const cookiePassword = process.env.COOKIE_PASSWORD || 'secret';
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
