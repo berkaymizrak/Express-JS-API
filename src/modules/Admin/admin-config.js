@@ -31,7 +31,8 @@ const adminJs = new AdminJS({
     },
 });
 
-adminJs.watch()
+if (env.production) await adminJs.initialize();
+else adminJs.watch();
 
 const logoKey = 'static/images/logo.svg';
 if (env.development) {
