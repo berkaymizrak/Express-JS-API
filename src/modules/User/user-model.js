@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 import bcryptjs from 'bcryptjs';
-import { bucketName, env, s3Client } from '../../config.js';
+import { bucketName, env, logger, s3Client } from '../../config.js';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -18,7 +18,10 @@ if (env.development) {
     defaultPPPath = '/' + defaultPPKey;
 } else {
     const command = new GetObjectCommand({ Bucket: bucketName, Key: defaultPPKey });
-    defaultPPPath = await getSignedUrl(s3Client, command);
+    defaultPPPath = await getSignedUrl(s3Client, command).catch(error => {
+        logger.error(error);
+        return null;
+    });
 }
 
 const userSchema = new Schema({
