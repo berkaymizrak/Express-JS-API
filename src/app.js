@@ -34,7 +34,6 @@ const runServer = async () => {
     // app.use(cookieParser());
 
     app.use('/static', express.static(path.join(__dirname, 'static')));
-    // app.use(express.static(path.join(__dirname, '../.admin')));
 
     middlewares.forEach(middleware => app.use(middleware));
     publicRoutes.forEach(route => app.use('/api/v1', route));

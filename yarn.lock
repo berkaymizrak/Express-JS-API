@@ -13,6 +13,11 @@
     prosemirror-transform "^1.2.1"
     prosemirror-view "^1.13.3"
 
+"@adminjs/bundler@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@adminjs/bundler/-/bundler-2.0.0.tgz#595565eea637309f12d138bf51d1ff0b26d658c7"
+  integrity sha512-8h5bH32bVfvDF/XuuuotbAbaShK6Mta/0c2+e31N/e8q+H9A54qKBK58JSOmjdwix/ZgJv3PvhznyVO0I4OibA==
+
 "@adminjs/design-system@^3.0.1":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@adminjs/design-system/-/design-system-3.0.1.tgz#1a866244da3c1b833a53aee56307907a16295317"
