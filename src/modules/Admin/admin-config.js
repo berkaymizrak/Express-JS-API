@@ -31,6 +31,8 @@ const adminJs = new AdminJS({
     },
 });
 
+adminJs.watch()
+
 const logoKey = 'static/images/logo.svg';
 if (env.development) {
     adminJs.options.branding.logo = '/' + logoKey;
