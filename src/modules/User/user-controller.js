@@ -60,8 +60,11 @@ const uploadProfilePicture = async (req, res, next) => {
             return next({ mes: error_message, error });
         }
         const { file } = req;
-        return await userUpdateQuery({ _id: req.session.user._id }, { profilePicture: file.location }).then(
-            responseUpdateQuery => {
+        if (file) {
+            return await userUpdateQuery(
+                { _id: req.session.user._id },
+                { profilePicture: file.location }
+            ).then(responseUpdateQuery => {
                 let mes;
                 if (responseUpdateQuery.success) {
                     mes = 'Profile picture uploaded successfully';
@@ -72,8 +75,10 @@ const uploadProfilePicture = async (req, res, next) => {
                     ...responseUpdateQuery,
                     mes,
                 });
-            }
-        );
+            });
+        } else {
+            return next({ status: 400, success: false, mes: 'No file was uploaded' });
+        }
     });
 };
 
