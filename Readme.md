@@ -18,13 +18,19 @@
 ## Installation
 
 ```bash
-npm install
+yarn install
 ```
 
 ## Usage
 
+The start command builds before starting server. No need to run build commands separately.
+
 ```bash
-npm start
+yarn start:dev
+```
+
+```bash
+yarn start:prod
 ```
 
 ## API Documentation
