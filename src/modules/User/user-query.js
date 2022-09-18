@@ -1,5 +1,5 @@
 import users from './user-model.js';
-import { resultLimit } from '../../config.js';
+import { defaultPPKey, defaultPPPath, resultLimit } from '../../config.js';
 
 const userFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
@@ -144,6 +144,15 @@ const userFindDetailedQuery = async (
             },
         ])
         .sort(sorting)
+        .then(async data => {
+            for await (const obj of data) {
+                if (!obj.profilePictureLocation) {
+                    obj.profilePictureLocation = defaultPPPath;
+                    obj.profilePictureKey = defaultPPKey;
+                }
+            }
+            return data;
+        })
         .then(async data => {
             return await users.count(countFilters).then(totalCount => {
                 return {

@@ -1,6 +1,8 @@
 import { userDeleteQuery, userFindQuery, userFindDetailedQuery, userUpdateQuery } from './user-query.js';
 import mongoose from 'mongoose';
 import { uploadPPService } from '../../services/uploadFile.js';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { bucketName, logger, s3Client } from '../../config.js';
 
 const listUsers = async (req, res, next) => {
     return next(await userFindQuery(req.query, {}));
@@ -61,21 +63,56 @@ const uploadProfilePicture = async (req, res, next) => {
         }
         const { file } = req;
         if (file) {
-            return await userUpdateQuery(
-                { _id: req.session.user._id },
-                { profilePicture: file.location }
-            ).then(responseUpdateQuery => {
-                let mes;
-                if (responseUpdateQuery.success) {
-                    mes = 'Profile picture uploaded successfully';
-                } else {
-                    mes = error_message;
-                }
-                return next({
-                    ...responseUpdateQuery,
-                    mes,
+            const filters = { _id: req.session.user._id };
+            return await userFindQuery({}, { filters, limit: 1 })
+                .then(async responseFindQuery => {
+                    const { success, data } = responseFindQuery;
+                    if (success) {
+                        const { username, isProfilePictureDefault, profilePictureKey } = data[0];
+                        if (!isProfilePictureDefault) {
+                            await s3Client
+                                .send(
+                                    new DeleteObjectCommand({
+                                        Bucket: bucketName,
+                                        Key: profilePictureKey,
+                                    })
+                                )
+                                .then(() => {
+                                    logger.info(
+                                        `Delete profile picture for user: ${username}. Deleted profile picture with key: ${profilePictureKey}`
+                                    );
+                                })
+                                .catch(error => {
+                                    logger.error(
+                                        `! ERROR !! Delete profile picture for user: ${username}. Error deleting profile picture with key: ${profilePictureKey}`,
+                                        error
+                                    );
+                                });
+                        }
+                    }
+                })
+                .then(async () => {
+                    return await userUpdateQuery(filters, {
+                        profilePictureLocation: file.location,
+                        profilePictureKey: file.key,
+                        isProfilePictureDefault: false,
+                    }).then(responseUpdateQuery => {
+                        let mes;
+                        if (responseUpdateQuery.success) {
+                            mes = 'Profile picture uploaded successfully';
+                        } else {
+                            mes = error_message;
+                            userUpdateQuery(filters, {
+                                isProfilePictureDefault: true,
+                                $unset: { profilePictureLocation: '', profilePictureKey: '' },
+                            });
+                        }
+                        return next({
+                            ...responseUpdateQuery,
+                            mes,
+                        });
+                    });
                 });
-            });
         } else {
             return next({ status: 400, success: false, mes: 'No file was uploaded' });
         }

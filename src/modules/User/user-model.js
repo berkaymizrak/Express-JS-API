@@ -23,7 +23,9 @@ const userSchema = new Schema({
     lastName: { type: String, required: [true, 'Last name is required'] },
     email: { type: String, required: [true, 'Email is required'], unique: true, dropDups: true },
     password: { type: String, required: [true, 'Password is required'], minLength: 6, maxLength: 200 },
-    profilePicture: { type: String, default: defaultPPPath },
+    profilePictureLocation: { type: String, default: defaultPPPath },
+    profilePictureKey: { type: String, default: defaultPPKey },
+    isProfilePictureDefault: { type: Boolean, default: true },
     role: {
         type: String,
         enum: ['admin', 'member'],
