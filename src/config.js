@@ -4,7 +4,8 @@ import MongoStore from 'connect-mongo';
 import { createLogger, format, transports } from 'winston';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 dotenv.config();
 
@@ -104,6 +105,18 @@ const s3Client = new S3Client({
 
 const bucketName = process.env.AWS_S3_BUCKET_NAME;
 
+const defaultPPKey = 'static/profile_pictures/default.jpg';
+let defaultPPPath;
+if (env.development) {
+    defaultPPPath = '/' + defaultPPKey;
+} else {
+    const command = new GetObjectCommand({ Bucket: bucketName, Key: defaultPPKey });
+    defaultPPPath = await getSignedUrl(s3Client, command).catch(error => {
+        logger.error(error);
+        return null;
+    });
+}
+
 export {
     logger,
     mongoUri,
@@ -123,4 +136,6 @@ export {
     __dirname,
     s3Client,
     bucketName,
+    defaultPPKey,
+    defaultPPPath,
 };
