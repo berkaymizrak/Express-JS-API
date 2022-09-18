@@ -5,7 +5,10 @@
       "src": "./src/index-compiled.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["/.adminjs/**"]
+        "includeFiles": [
+          "/.adminjs/**",
+          "/src/locales/**"
+        ]
       }
     }
   ],
