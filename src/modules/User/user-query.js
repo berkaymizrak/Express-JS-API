@@ -195,7 +195,7 @@ const userCreateQuery = async (res, body) => {
             };
         })
         .catch(error => {
-            return { mes: res.__('error_creating', { module: res.__('user') }), error };
+            return { mes: res.__('error_creating_module', { module: res.__('user') }), error };
         });
 };
 
@@ -216,7 +216,7 @@ const userUpdateQuery = async (res, filters, update, projection = { __v: 0, pass
             };
         })
         .catch(error => {
-            return { mes: res.__('error_updating', { module: res.__('user') }), error };
+            return { mes: res.__('error_updating_module', { module: res.__('user') }), error };
         });
 };
 

@@ -150,7 +150,7 @@ const cardCreateQuery = async (res, body) => {
             };
         })
         .catch(error => {
-            return { mes: res.__('error_creating', { module: res.__('card') }), error };
+            return { mes: res.__('error_creating_module', { module: res.__('card') }), error };
         });
 };
 

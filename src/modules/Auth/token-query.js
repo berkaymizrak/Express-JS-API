@@ -46,7 +46,7 @@ const tokenCreateQuery = async (res, body) => {
             };
         })
         .catch(error => {
-            return { mes: res.__('error_creating', { module: res.__('token') }), error };
+            return { mes: res.__('error_creating_module', { module: res.__('token') }), error };
         });
 };
 

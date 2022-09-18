@@ -20,15 +20,15 @@
   "profile": "profile",
   "picture_of": "picture",
 
-  "module_retrieved_successfully": "retrieved successfully",
+  "module_retrieved_successfully": "{{module}} retrieved successfully",
   "module_created": "{{module}} created successfully",
   "module_updated": "{{module}} updated successfully",
   "no_module_found": "No {{module}} found",
   "module_not_found": "{{module}} not found",
   "error_fetching_module": "Error fetching {{module}}",
   "error_deleting_module": "Error deleting {{module}}",
-  "error_updating": "Error updating {{module}}",
-  "error_creating": "Error creating {{module}}",
+  "error_updating_module": "Error updating {{module}}",
+  "error_creating_module": "Error creating {{module}}",
 
   "unauthorized_to_see": "Unauthorized to access this resource",
   "token_not_valid": "Token is not valid",

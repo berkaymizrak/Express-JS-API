@@ -48,7 +48,7 @@ const signupController = async (req, res, next) => {
                 }
             })
             .catch(error => {
-                return { mes: res.__('error_creating', { module: res.__('user') }), error };
+                return { mes: res.__('error_creating_module', { module: res.__('user') }), error };
             })
     );
 };

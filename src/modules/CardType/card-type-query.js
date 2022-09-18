@@ -62,7 +62,7 @@ const cardTypeCreateQuery = async (res, body) => {
         })
         .catch(error => {
             return {
-                mes: res.__('error_creating', { module: res.__('card') + ' ' + res.__('type_of') }),
+                mes: res.__('error_creating_module', { module: res.__('card') + ' ' + res.__('type_of') }),
                 error,
             };
         });
@@ -83,7 +83,7 @@ const cardTypeUpdateQuery = async (res, filters, update, projection = { __v: 0 }
         })
         .catch(error => {
             return {
-                mes: res.__('error_updating', { module: res.__('Card') + ' ' + res.__('type_of') }),
+                mes: res.__('error_updating_module', { module: res.__('Card') + ' ' + res.__('type_of') }),
                 error,
             };
         });
