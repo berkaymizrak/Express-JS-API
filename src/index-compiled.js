@@ -10,8 +10,7 @@ import createPaging from './services/createPaging.js'; // Middlewares
 
 import middlewares from './middlewares/middleware-handler.js';
 import verifyToken from './middlewares/verify-token.js';
-import helmet from 'helmet'; // import { I18n } from 'i18n';
-
+import helmet from 'helmet';
 import i18n from 'i18n';
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 import adminRouter from './modules/Admin/admin-router.js';
@@ -38,6 +37,7 @@ const runServer = async () => {
   i18n.configure({
     locales: ['en', 'tr'],
     defaultLocale: 'en',
+    queryParameter: 'lang',
     directory: path.join(__dirname, 'locales'),
     // setting of log level WARN - default to require('debug')('i18n:warn')
     logWarnFn: function (msg) {
