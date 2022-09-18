@@ -73,20 +73,21 @@ function genuuid() {
 const sessionOptions = {
     genid: genuuid,
     secret: sessionSecret,
-    saveUninitialized: false, // don't create session until something stored
+    name: 'sessionId',
+    saveUninitialized: true, // don't create session until something stored
     resave: false, //don't save session if unmodified
     store: MongoStore.create({
         mongoUrl: mongoUri,
         ttl: 14 * 24 * 60 * 60, // = 14 days (Default: 14 days)
         autoRemove: 'interval', // automatically remove expired sessions. Options: native, interval, disabled (Default: 'native')
-        autoRemoveInterval: 360, // In minutes (Default: 10)
-        touchAfter: 24 * 3600, // time period in seconds (Default: 24 hours),
+        autoRemoveInterval: 60 * 24, // = 1 day (In minutes (Default: 10))
+        touchAfter: 30, // = 30 seconds (time period in seconds (Default: 24 hours))
         crypto: {
             secret: cookiePassword,
         },
     }),
     cookie: {
-        maxAge: 60000, // Default: null
+        maxAge: 14 * 24 * 60 * 60, // = 14 days (Default: null)
     },
     rolling: true, // forces resetting of max age
 };

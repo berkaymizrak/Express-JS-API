@@ -29,6 +29,7 @@
     "express": "~4.16.1",
     "express-formidable": "^1.2.0",
     "express-session": "^1.17.3",
+    "helmet": "^6.0.0",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.5.2",

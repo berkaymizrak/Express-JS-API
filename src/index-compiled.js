@@ -10,11 +10,12 @@ import createPaging from './services/createPaging.js'; // Middlewares
 
 import middlewares from './middlewares/middleware-handler.js';
 import verifyToken from './middlewares/verify-token.js';
+import helmet from 'helmet';
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 import adminRouter from './modules/Admin/admin-router.js';
 
 const runServer = async () => {
-  const app = express();
+  const app = express(); // Security settings
 
   if (env.production) {
     app.set('trust proxy', 1); // trust first proxy
@@ -22,6 +23,8 @@ const runServer = async () => {
     sessionOptions.cookie.secure = true; // serve secure cookies
   }
 
+  app.use(helmet());
+  app.disable('x-powered-by');
   app.use(session(sessionOptions)); // DB connection is done in admin-router.js > admin-config.js
 
   app.use('/api/admin', await adminRouter);
@@ -36,7 +39,11 @@ const runServer = async () => {
   privateRoutes.forEach(route => app.use('/api/v1', verifyToken, route)); // catch 404 and forward to error handler
 
   app.use((req, res, next) => {
-    next(createError(404));
+    next({
+      status: 404,
+      mes: 'NotFoundError',
+      error: createError(404)
+    });
   }); // general interceptor for all requests
 
   app.use((serverResponse, req, res, next) => {
