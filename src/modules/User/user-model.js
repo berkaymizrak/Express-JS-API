@@ -25,7 +25,6 @@ const userSchema = new Schema({
     password: { type: String, required: [true, 'Password is required'], minLength: 6, maxLength: 200 },
     profilePictureLocation: { type: String, default: defaultPPPath },
     profilePictureKey: { type: String, default: defaultPPKey },
-    isProfilePictureDefault: { type: Boolean, default: true },
     role: {
         type: String,
         enum: ['admin', 'member'],
@@ -42,6 +41,10 @@ const userSchema = new Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
+
+userSchema.methods.isProfilePictureDefault = function (profilePictureKey) {
+    return profilePictureKey === defaultPPKey;
+};
 
 userSchema.methods.isAdmin = function (role) {
     return role === 'admin';

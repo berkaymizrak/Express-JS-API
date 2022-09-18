@@ -64,12 +64,12 @@ const uploadProfilePicture = async (req, res, next) => {
         const { file } = req;
         if (file) {
             const filters = { _id: req.session.user._id };
-            return await userFindQuery({}, { filters, limit: 1 })
+            return await userFindQuery(req.query, { filters, limit: 1 })
                 .then(async responseFindQuery => {
                     const { success, data } = responseFindQuery;
                     if (success) {
-                        const { username, isProfilePictureDefault, profilePictureKey } = data[0];
-                        if (!isProfilePictureDefault) {
+                        const { username, profilePictureKey } = data[0];
+                        if (!data[0].schema.methods.isProfilePictureDefault(profilePictureKey)) {
                             await s3Client
                                 .send(
                                     new DeleteObjectCommand({
@@ -95,7 +95,6 @@ const uploadProfilePicture = async (req, res, next) => {
                     return await userUpdateQuery(filters, {
                         profilePictureLocation: file.location,
                         profilePictureKey: file.key,
-                        isProfilePictureDefault: false,
                     }).then(responseUpdateQuery => {
                         let mes;
                         if (responseUpdateQuery.success) {
@@ -103,7 +102,6 @@ const uploadProfilePicture = async (req, res, next) => {
                         } else {
                             mes = error_message;
                             userUpdateQuery(filters, {
-                                isProfilePictureDefault: true,
                                 $unset: { profilePictureLocation: '', profilePictureKey: '' },
                             });
                         }
@@ -125,8 +123,8 @@ const deleteProfilePicture = async (req, res, next) => {
         .then(async responseFindQuery => {
             const { success, data } = responseFindQuery;
             if (success) {
-                const { username, isProfilePictureDefault, profilePictureKey } = data[0];
-                if (!isProfilePictureDefault) {
+                const { username, profilePictureKey } = data[0];
+                if (!data[0].schema.methods.isProfilePictureDefault(profilePictureKey)) {
                     return await s3Client
                         .send(
                             new DeleteObjectCommand({
@@ -157,7 +155,6 @@ const deleteProfilePicture = async (req, res, next) => {
         .then(async responseDeleteProfilePicture => {
             if (responseDeleteProfilePicture.success) {
                 return await userUpdateQuery(filters, {
-                    isProfilePictureDefault: true,
                     $unset: { profilePictureLocation: '', profilePictureKey: '' },
                 }).then(responseUpdateQuery => {
                     if (!responseUpdateQuery.success) {
