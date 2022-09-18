@@ -24,8 +24,8 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
             return await users.count(filters).then(totalCount => {
                 return {
                     status: 200,
-                    success: true,
-                    mes: 'Users retrieved successfully',
+                    success: !!data,
+                    mes: data ? 'Users retrieved successfully' : 'No user found',
                     totalCount,
                     count: data.length,
                     data,
@@ -148,8 +148,8 @@ const userFindDetailedQuery = async (
             return await users.count(countFilters).then(totalCount => {
                 return {
                     status: 200,
-                    success: true,
-                    mes: 'Users retrieved successfully',
+                    success: !!data,
+                    mes: data ? 'Users retrieved successfully' : 'No user found',
                     totalCount,
                     count: data.length,
                     data,

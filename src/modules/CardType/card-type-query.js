@@ -24,8 +24,8 @@ const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, l
             return await cardTypes.count(filters).then(totalCount => {
                 return {
                     status: 200,
-                    success: true,
-                    mes: 'Card Types retrieved successfully',
+                    success: !!data,
+                    mes: data ? 'Card Types retrieved successfully' : 'No card type found',
                     totalCount,
                     count: data.length,
                     data,
