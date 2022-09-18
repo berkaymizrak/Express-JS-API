@@ -23,7 +23,7 @@ const verifyToken = async (req, res, next) => {
                     return {
                         status: 401,
                         success: false,
-                        mes: 'Token is not valid',
+                        mes: res.__('token_not_valid'),
                         error,
                     };
                 } else {
@@ -37,7 +37,7 @@ const verifyToken = async (req, res, next) => {
         return next({
             status: 401,
             success: false,
-            mes: 'Auth token is not supplied',
+            mes: res.__('no_auth_token'),
         });
     }
 };

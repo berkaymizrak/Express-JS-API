@@ -1,7 +1,7 @@
 import cardTypes from './card-type-model.js';
 import { resultLimit } from '../../config.js';
 
-const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
+const cardTypesFindQuery = async (res, queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -25,7 +25,11 @@ const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, l
                 return {
                     status: 200,
                     success: !!data,
-                    mes: data ? 'Card Types retrieved successfully' : 'No card type found',
+                    mes: data
+                        ? res.__('module_retrieved_successfully', {
+                              module: res.__('Card') + ' ' + res.__('Types_of'),
+                          })
+                        : res.__('no_module_found', { module: res.__('card') + ' ' + res.__('type_of') }),
                     totalCount,
                     count: data.length,
                     data,
@@ -33,11 +37,14 @@ const cardTypesFindQuery = async (queryParams, { filters, projection, sorting, l
             });
         })
         .catch(error => {
-            return { mes: 'Error fetching card types', error };
+            return {
+                mes: res.__('error_fetching_module', { module: res.__('card') + ' ' + res.__('types_of') }),
+                error,
+            };
         });
 };
 
-const cardTypeCreateQuery = async body => {
+const cardTypeCreateQuery = async (res, body) => {
     const { name, icon, base_url } = body;
     return await new cardTypes({
         name,
@@ -49,44 +56,57 @@ const cardTypeCreateQuery = async body => {
             return {
                 status: 201,
                 success: true,
-                mes: 'Card Type created successfully',
+                mes: res.__('module_created', { module: res.__('Card') + ' ' + res.__('Type_of') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error creating card type', error };
+            return {
+                mes: res.__('error_creating', { module: res.__('card') + ' ' + res.__('type_of') }),
+                error,
+            };
         });
 };
 
-const cardTypeUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
+const cardTypeUpdateQuery = async (res, filters, update, projection = { __v: 0 }) => {
     return await cardTypes
         .findOneAndUpdate(filters, { new: true, projection: projection })
         .then(data => {
             return {
                 status: 200,
                 success: !!data,
-                mes: data ? 'Card type updated successfully' : 'Card type not found',
+                mes: data
+                    ? res.__('module_updated', { module: res.__('Card') + ' ' + res.__('type_of') })
+                    : res.__('module_not_found', { module: res.__('Card') + ' ' + res.__('type_of') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error updating card type', error };
+            return {
+                mes: res.__('error_updating', { module: res.__('Card') + ' ' + res.__('type_of') }),
+                error,
+            };
         });
 };
 
-const cardTypeDeleteQuery = async (filters, projection = { __v: 0 }) => {
+const cardTypeDeleteQuery = async (res, filters, projection = { __v: 0 }) => {
     return await cardTypes
         .findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,
                 success: !!data,
-                mes: data ? 'Card type deleted successfully' : 'Card type not found',
+                mes: data
+                    ? res.__('module_deleted', { module: res.__('Card') + ' ' + res.__('type_of') })
+                    : res.__('module_not_found', { module: res.__('Card') + ' ' + res.__('type_of') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error deleting card type', error };
+            return {
+                mes: res.__('error_deleting_module', { module: res.__('card') + ' ' + res.__('type_of') }),
+                error,
+            };
         });
 };
 

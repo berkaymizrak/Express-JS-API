@@ -31,24 +31,24 @@ const signupController = async (req, res, next) => {
 
     const filters = { $or: [{ username }, { email }] };
     return next(
-        await userFindQuery(req.query, { filters, limit: 1 })
+        await userFindQuery(res, req.query, { filters, limit: 1 })
             .then(async responseFindQuery => {
                 if (!responseFindQuery.success && responseFindQuery.status !== 200) return responseFindQuery;
                 if (responseFindQuery.data.length > 0) {
                     return {
                         status: 409,
                         success: false,
-                        mes: 'Username or Email already exists',
+                        mes: res.__('user_already_exists'),
                     };
                 } else {
-                    return await userCreateQuery(req.body).then(responseCreateQuery => {
+                    return await userCreateQuery(res, req.body).then(responseCreateQuery => {
                         responseCreateQuery['credentials'] = createCredentials(req.body);
                         return responseCreateQuery;
                     });
                 }
             })
             .catch(error => {
-                return { mes: 'Error creating user', error };
+                return { mes: res.__('error_creating', { module: res.__('user') }), error };
             })
     );
 };
@@ -66,7 +66,7 @@ const loginUser = async (req, res, next) => {
             }
             const projection = { __v: 0 };
             return next(
-                await userFindQuery(req.query, { filters, projection, limit: 1 }).then(
+                await userFindQuery(res, req.query, { filters, projection, limit: 1 }).then(
                     async responseFindQuery => {
                         if (!responseFindQuery.success && responseFindQuery.status !== 200)
                             return next(responseFindQuery);
@@ -78,7 +78,7 @@ const loginUser = async (req, res, next) => {
                                     return {
                                         status: 200,
                                         success: true,
-                                        mes: 'User logged in successfully',
+                                        mes: res.__('login_success'),
                                         data: responseData,
                                         credentials: createCredentials(responseData),
                                     };
@@ -86,7 +86,7 @@ const loginUser = async (req, res, next) => {
                                     return {
                                         status: 401,
                                         success: false,
-                                        mes: 'Incorrect password',
+                                        mes: res.__('invalid_credentials'),
                                     };
                                 }
                             });
@@ -94,7 +94,7 @@ const loginUser = async (req, res, next) => {
                             return {
                                 status: 401,
                                 success: false,
-                                mes: 'Incorrect Password or Username',
+                                mes: res.__('invalid_credentials'),
                             };
                         }
                     }
@@ -102,7 +102,7 @@ const loginUser = async (req, res, next) => {
             );
         })
         .catch(error => {
-            return { mes: 'Error logging in user', error };
+            return { mes: res.__('error_logging_in'), error };
         });
 };
 
@@ -117,54 +117,56 @@ const resetPasswordRequest = async (req, res, next) => {
                 filters.username = usernameOrEmail;
             }
 
-            return await userFindQuery(req.query, { filters, limit: 1 }).then(async responseFindQuery => {
-                if (!responseFindQuery.success) {
-                    return next(responseFindQuery);
-                }
-                if (!responseFindQuery.count) {
-                    return next({
-                        status: 200,
-                        success: false,
-                        mes: 'User not found',
+            return await userFindQuery(res, req.query, { filters, limit: 1 }).then(
+                async responseFindQuery => {
+                    if (!responseFindQuery.success) {
+                        return next(responseFindQuery);
+                    }
+                    if (!responseFindQuery.count) {
+                        return next({
+                            status: 200,
+                            success: false,
+                            mes: res.__('module_not_found', { module: res.__('User') }),
+                        });
+                    }
+
+                    const user = responseFindQuery.data[0];
+                    const userId = user._id;
+                    const filters = { userId };
+                    await tokenDeleteQuery(res, filters);
+
+                    let token = crypto.randomBytes(32).toString('hex');
+
+                    await tokenCreateQuery(res, {
+                        userId,
+                        token,
                     });
+
+                    const link = `${frontendUrl}/reset_password_confirm?token=${token}&userId=${userId}`;
+                    const mailPayload = {
+                        fullName: `${user.firstName} ${user.lastName}`,
+                        link,
+                    };
+                    return next(
+                        await sendMailTemplate(
+                            user.email,
+                            res.__('reset_password_request'),
+                            'resetPasswordRequest',
+                            mailPayload
+                        )
+                    );
                 }
-
-                const user = responseFindQuery.data[0];
-                const userId = user._id;
-                const filters = { userId };
-                await tokenDeleteQuery(filters);
-
-                let token = crypto.randomBytes(32).toString('hex');
-
-                await tokenCreateQuery({
-                    userId,
-                    token,
-                });
-
-                const link = `${frontendUrl}/reset_password_confirm?token=${token}&userId=${userId}`;
-                const mailPayload = {
-                    fullName: `${user.firstName} ${user.lastName}`,
-                    link,
-                };
-                return next(
-                    await sendMailTemplate(
-                        user.email,
-                        'Reset Password Request',
-                        'resetPasswordRequest',
-                        mailPayload
-                    )
-                );
-            });
+            );
         })
         .catch(error => {
-            return next({ mes: 'Error requesting password reset', error });
+            return next({ mes: res.__('error_resetting_password'), error });
         });
 };
 
 const resetPasswordConfirm = async (req, res, next) => {
     const { token, userId } = req.query;
     const filters = { token, userId };
-    return await tokenFindQuery(req.query, { filters, limit: 1 })
+    return await tokenFindQuery(res, req.query, { filters, limit: 1 })
         .then(async responseFindQuery => {
             if (!responseFindQuery.success) {
                 return next(responseFindQuery);
@@ -173,39 +175,39 @@ const resetPasswordConfirm = async (req, res, next) => {
                 return next({
                     status: 200,
                     success: false,
-                    mes: 'Token not found',
+                    mes: res.__('module_not_found', { module: res.__('Token') }),
                 });
             }
-            await userFindQuery(req.query, { filters: { _id: userId }, limit: 1 }).then(
+            await userFindQuery(res, req.query, { filters: { _id: userId }, limit: 1 }).then(
                 async responseUserFindQuery => {
                     if (!responseUserFindQuery.success) return next(responseUserFindQuery);
                     if (!responseUserFindQuery.count) {
                         return next({
                             status: 200,
                             success: false,
-                            mes: 'User not found',
+                            mes: res.__('module_not_found', { module: res.__('User') }),
                         });
                     }
                     return next({
                         status: 200,
                         success: true,
-                        mes: 'Token is valid',
+                        mes: res.__('valid_token'),
                     });
                 }
             );
         })
         .catch(error => {
-            return next({ mes: 'Error confirming reset password', error });
+            return next({ mes: res.__('error_resetting_password'), error });
         });
 };
 
 const resetPasswordDone = async (req, res, next) => {
     const { token, userId } = req.query;
     const { password } = req.body;
-    const errorMessage = 'Invalid or expired password reset token';
+    const errorMessage = res.__('expired_token');
 
     const tokenFilters = { userId };
-    return await tokenFindQuery(req.query, { filters: tokenFilters, limit: 1 })
+    return await tokenFindQuery(res, req.query, { filters: tokenFilters, limit: 1 })
         .then(async responseTokenFindQuery => {
             if (!responseTokenFindQuery.success || !responseTokenFindQuery.count) {
                 responseTokenFindQuery = {
@@ -225,9 +227,9 @@ const resetPasswordDone = async (req, res, next) => {
                 });
             }
 
-            if (!env.development) await tokenDeleteQuery(tokenFilters);
+            if (!env.development) await tokenDeleteQuery(res, tokenFilters);
 
-            return await userUpdateQuery({ _id: userId }, { password }).then(
+            return await userUpdateQuery(res, { _id: userId }, { password }).then(
                 async responseUserUpdateQuery => {
                     if (!responseUserUpdateQuery.success) return next(responseUserUpdateQuery);
 
@@ -241,7 +243,7 @@ const resetPasswordDone = async (req, res, next) => {
                     return next(
                         await sendMailTemplate(
                             user.email,
-                            'Reset Password Successfully',
+                            res.__('password_reset_success'),
                             'resetPasswordDone',
                             mailPayload
                         )
@@ -250,12 +252,12 @@ const resetPasswordDone = async (req, res, next) => {
             );
         })
         .catch(error => {
-            return next({ mes: 'Error resetting password', error });
+            return next({ mes: res.__('error_resetting_password'), error });
         });
 };
 
 const listTokens = async (req, res, next) => {
-    return next(await tokenFindQuery(req.query, {}));
+    return next(await tokenFindQuery(res, req.query, {}));
 };
 
 export {

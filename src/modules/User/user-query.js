@@ -1,7 +1,7 @@
 import users from './user-model.js';
 import { defaultPPKey, defaultPPPath, resultLimit } from '../../config.js';
 
-const userFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
+const userFindQuery = async (res, queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -25,7 +25,9 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
                 return {
                     status: 200,
                     success: !!data,
-                    mes: data ? 'Users retrieved successfully' : 'No user found',
+                    mes: data
+                        ? res.__('module_retrieved_successfully', { module: res.__('Users') })
+                        : res.__('no_module_found', { module: res.__('user') }),
                     totalCount,
                     count: data.length,
                     data,
@@ -33,11 +35,12 @@ const userFindQuery = async (queryParams, { filters, projection, sorting, limit,
             });
         })
         .catch(error => {
-            return { mes: 'Error fetching users', error };
+            return { mes: res.__('error_fetching_module', { module: res.__('users') }), error };
         });
 };
 
 const userFindDetailedQuery = async (
+    res,
     queryParams,
     { filters, countFilters, projection, sorting, limit, skip }
 ) => {
@@ -158,7 +161,9 @@ const userFindDetailedQuery = async (
                 return {
                     status: 200,
                     success: !!data,
-                    mes: data ? 'Users retrieved successfully' : 'No user found',
+                    mes: data
+                        ? res.__('module_retrieved_successfully', { module: res.__('Users') })
+                        : res.__('no_module_found', { module: res.__('user') }),
                     totalCount,
                     count: data.length,
                     data,
@@ -166,11 +171,11 @@ const userFindDetailedQuery = async (
             });
         })
         .catch(error => {
-            return { mes: 'Error fetching users', error };
+            return { mes: res.__('error_fetching_module', { module: res.__('users') }), error };
         });
 };
 
-const userCreateQuery = async body => {
+const userCreateQuery = async (res, body) => {
     const { username, firstName, lastName, email, password, role } = body;
     return await new users({
         username,
@@ -185,16 +190,16 @@ const userCreateQuery = async body => {
             return {
                 status: 201,
                 success: true,
-                mes: 'User created successfully',
+                mes: res.__('module_created', { module: res.__('User') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error creating user', error };
+            return { mes: res.__('error_creating', { module: res.__('user') }), error };
         });
 };
 
-const userUpdateQuery = async (filters, update, projection = { __v: 0, password: 0 }) => {
+const userUpdateQuery = async (res, filters, update, projection = { __v: 0, password: 0 }) => {
     return await users
         .findOneAndUpdate(filters, update, {
             new: true,
@@ -204,28 +209,32 @@ const userUpdateQuery = async (filters, update, projection = { __v: 0, password:
             return {
                 status: 200,
                 success: !!data,
-                mes: data ? 'User updated successfully' : 'User not found',
+                mes: data
+                    ? res.__('module_updated', { module: res.__('User') })
+                    : res.__('module_not_found', { module: res.__('User') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error updating user', error };
+            return { mes: res.__('error_updating', { module: res.__('user') }), error };
         });
 };
 
-const userDeleteQuery = async (filters, projection = { __v: 0, password: 0 }) => {
+const userDeleteQuery = async (res, filters, projection = { __v: 0, password: 0 }) => {
     return await users
         .findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,
                 success: !!data,
-                mes: data ? 'User deleted successfully' : 'User not found',
+                mes: data
+                    ? res.__('module_deleted', { module: res.__('User') })
+                    : res.__('module_not_found', { module: res.__('User') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error deleting user', error };
+            return { mes: res.__('error_deleting_module', { module: res.__('user') }), error };
         });
 };
 

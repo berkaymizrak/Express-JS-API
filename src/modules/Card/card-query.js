@@ -1,7 +1,7 @@
 import cards from './card-model.js';
 import { resultLimit } from '../../config.js';
 
-const cardFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
+const cardFindQuery = async (res, queryParams, { filters, projection, sorting, limit, skip }) => {
     // EXAMPLE
     // const filters = {
     //     // REGEX:
@@ -25,7 +25,9 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
                 return {
                     status: 200,
                     success: !!data,
-                    mes: data ? 'Cards retrieved successfully' : 'No card found',
+                    mes: data
+                        ? res.__('module_retrieved_successfully', { module: res.__('Cards') })
+                        : res.__('no_module_found', { module: res.__('card') }),
                     totalCount,
                     count: data.length,
                     data,
@@ -33,11 +35,12 @@ const cardFindQuery = async (queryParams, { filters, projection, sorting, limit,
             });
         })
         .catch(error => {
-            return { mes: 'Error fetching cards', error };
+            return { mes: res.__('error_fetching_module', { module: res.__('cards') }), error };
         });
 };
 
 const cardFindDetailedQuery = async (
+    res,
     queryParams,
     { filters, countFilters, projection, sorting, limit, skip }
 ) => {
@@ -115,7 +118,9 @@ const cardFindDetailedQuery = async (
                 return {
                     status: 200,
                     success: !!data,
-                    mes: data ? 'Cards retrieved successfully' : 'No card found',
+                    mes: data
+                        ? res.__('module_retrieved_successfully', { module: res.__('Cards') })
+                        : res.__('no_module_found', { module: res.__('card') }),
                     totalCount,
                     count: data.length,
                     data,
@@ -123,11 +128,11 @@ const cardFindDetailedQuery = async (
             });
         })
         .catch(error => {
-            return { mes: 'Error fetching cards', error };
+            return { mes: res.__('error_fetching_module', { module: res.__('cards') }), error };
         });
 };
 
-const cardCreateQuery = async body => {
+const cardCreateQuery = async (res, body) => {
     const { name, userId, cardTypeId, urlPath } = body;
     return await new cards({
         name,
@@ -140,44 +145,48 @@ const cardCreateQuery = async body => {
             return {
                 status: 201,
                 success: true,
-                mes: 'Card created successfully',
+                mes: res.__('module_created', { module: res.__('Card') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error creating card', error };
+            return { mes: res.__('error_creating', { module: res.__('card') }), error };
         });
 };
 
-const cardUpdateQuery = async (filters, update, projection = { __v: 0 }) => {
+const cardUpdateQuery = async (res, filters, update, projection = { __v: 0 }) => {
     return await cards
         .findOneAndUpdate(filters, update, { new: true, projection: projection })
         .then(data => {
             return {
                 status: 200,
                 success: !!data,
-                mes: data ? 'Card updated successfully' : 'Card not found',
+                mes: data
+                    ? res.__('module_updated', { module: res.__('Card') })
+                    : res.__('module_not_found', { module: res.__('Card') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error deleting card', error };
+            return { mes: res.__('error_deleting_module', { module: res.__('card') }), error };
         });
 };
 
-const cardDeleteQuery = async (filters, projection = { __v: 0 }) => {
+const cardDeleteQuery = async (res, filters, projection = { __v: 0 }) => {
     return await cards
         .findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,
                 success: !!data,
-                mes: data ? 'Card deleted successfully' : 'Card not found',
+                mes: data
+                    ? res.__('module_deleted', { module: res.__('Card') })
+                    : res.__('module_not_found', { module: res.__('Card') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error deleting card', error };
+            return { mes: res.__('error_deleting_module', { module: res.__('card') }), error };
         });
 };
 

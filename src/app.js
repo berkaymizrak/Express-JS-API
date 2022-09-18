@@ -14,6 +14,7 @@ import createPaging from './services/createPaging.js';
 import middlewares from './middlewares/middleware-handler.js';
 import verifyToken from './middlewares/verify-token.js';
 import helmet from 'helmet';
+import i18n from 'i18n';
 
 import { privateRoutes, publicRoutes } from './middlewares/router-bundler.js';
 import adminRouter from './modules/Admin/admin-router.js';
@@ -37,6 +38,35 @@ const runServer = async () => {
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
     // app.use(cookieParser());
+
+    i18n.configure({
+        locales: ['en', 'tr'],
+        defaultLocale: 'en',
+        queryParameter: 'lang',
+        directory: path.join(__dirname, 'locales'),
+
+        // setting of log level WARN - default to require('debug')('i18n:warn')
+        logWarnFn: function (msg) {
+            if (env.development) console.log('logWarnFn', msg);
+            logger.warn(msg);
+        },
+
+        // setting of log level ERROR - default to require('debug')('i18n:error')
+        logErrorFn: function (msg) {
+            if (env.development) console.log('logErrorFn', msg);
+            logger.error(msg);
+        },
+
+        // used to alter the behaviour of missing keys
+        missingKeyFn: function (locale, value) {
+            if (env.development) console.log(`i18n missing key: ${locale} - ${value}`);
+            logger.error(`i18n missing key: ${locale} - ${value}`);
+            return value;
+        },
+    });
+
+    // default: using 'accept-language' header to guess language settings
+    app.use(i18n.init);
 
     app.use('/static', express.static(path.join(__dirname, 'static')));
 

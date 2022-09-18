@@ -18,7 +18,7 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
                         filters.username = usernameOrEmail;
                     }
 
-                    return await userFindQuery({}, { filters, limit: 1, projection: {} }).then(
+                    return await userFindQuery(res, {}, { filters, limit: 1, projection: {} }).then(
                         async responseUserFindQuery => {
                             const { data } = responseUserFindQuery;
                             if (

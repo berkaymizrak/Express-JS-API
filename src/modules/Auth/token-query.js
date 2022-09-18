@@ -1,7 +1,7 @@
 import tokens from './token-model.js';
 import { resultLimit } from '../../config.js';
 
-const tokenFindQuery = async (queryParams, { filters, projection, sorting, limit, skip }) => {
+const tokenFindQuery = async (res, queryParams, { filters, projection, sorting, limit, skip }) => {
     if (!filters) filters = {};
     if (!projection) projection = { __v: 0 };
     if (!sorting) sorting = queryParams.sorting || { createdAt: -1 };
@@ -18,7 +18,7 @@ const tokenFindQuery = async (queryParams, { filters, projection, sorting, limit
                 return {
                     status: 200,
                     success: true,
-                    mes: 'Tokens retrieved successfully',
+                    mes: res.__('module_retrieved_successfully', { module: res.__('Tokens') }),
                     totalCount,
                     count: data.length,
                     data,
@@ -26,11 +26,11 @@ const tokenFindQuery = async (queryParams, { filters, projection, sorting, limit
             });
         })
         .catch(error => {
-            return { mes: 'Error fetching tokens', error };
+            return { mes: res.__('error_fetching_module', { module: res.__('tokens') }), error };
         });
 };
 
-const tokenCreateQuery = async body => {
+const tokenCreateQuery = async (res, body) => {
     const { userId, token } = body;
     return await new tokens({
         userId,
@@ -41,28 +41,30 @@ const tokenCreateQuery = async body => {
             return {
                 status: 201,
                 success: true,
-                mes: 'Token created successfully',
+                mes: res.__('module_created', { module: res.__('Token') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error creating token', error };
+            return { mes: res.__('error_creating', { module: res.__('token') }), error };
         });
 };
 
-const tokenDeleteQuery = async (filters, projection = { __v: 0 }) => {
+const tokenDeleteQuery = async (res, filters, projection = { __v: 0 }) => {
     return await tokens
         .findOneAndDelete(filters, { projection: projection })
         .then(data => {
             return {
                 status: 200,
                 success: !!data,
-                mes: data ? 'Token deleted successfully' : 'Token not found',
+                mes: data
+                    ? res.__('module_deleted', { module: res.__('Token') })
+                    : res.__('module_not_found', { module: res.__('Token') }),
                 data,
             };
         })
         .catch(error => {
-            return { mes: 'Error deleting token', error };
+            return { mes: res.__('error_deleting_module', { module: res.__('token') }), error };
         });
 };
 

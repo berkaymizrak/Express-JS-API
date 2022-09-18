@@ -7,7 +7,7 @@ const adminRequiredOutOfCurrentUser = (req, res, next) => {
     ) {
         return next();
     } else {
-        return next({ status: 401, success: false, mes: 'Unauthorized to access this resource' });
+        return next({ status: 401, success: false, mes: res.__('unauthorized_to_see') });
     }
 };
 

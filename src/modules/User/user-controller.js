@@ -5,17 +5,17 @@ import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { bucketName, logger, s3Client } from '../../config.js';
 
 const listUsers = async (req, res, next) => {
-    return next(await userFindQuery(req.query, {}));
+    return next(await userFindQuery(res, req.query, {}));
 };
 
 const listDetailedUsers = async (req, res, next) => {
-    return next(await userFindDetailedQuery(req.query, {}));
+    return next(await userFindDetailedQuery(res, req.query, {}));
 };
 
 const getUser = async (req, res, next) => {
     const { id } = req.params;
     const filters = { _id: id };
-    return next(await userFindQuery(req.query, { filters, limit: 1 }));
+    return next(await userFindQuery(res, req.query, { filters, limit: 1 }));
 };
 
 const getDetailedUser = async (req, res, next) => {
@@ -26,10 +26,10 @@ const getDetailedUser = async (req, res, next) => {
             $match: { _id: mongoose.Types.ObjectId(id) },
         });
     } catch (error) {
-        return next({ mes: 'Error fetching users', error });
+        return next({ mes: res.__('error_fetching_module', { module: res.__('users') }), error });
     }
     const countFilters = { _id: id };
-    return await userFindDetailedQuery(req.query, { filters, countFilters, limit: 1 })
+    return await userFindDetailedQuery(res, req.query, { filters, countFilters, limit: 1 })
         .then(responseFindDetailedQuery => {
             let { success, data } = responseFindDetailedQuery;
             if (success) {
@@ -39,24 +39,24 @@ const getDetailedUser = async (req, res, next) => {
             return next(responseFindDetailedQuery);
         })
         .catch(error => {
-            return next({ mes: 'Error fetching user', error });
+            return next({ mes: res.__('error_fetching_module', { module: res.__('users') }), error });
         });
 };
 
 const updateUser = async (req, res, next) => {
     const { id } = req.params;
     const filters = { _id: id };
-    return next(await userUpdateQuery(filters, req.body));
+    return next(await userUpdateQuery(res, filters, req.body));
 };
 
 const deleteUser = async (req, res, next) => {
     const { id } = req.params;
     const filters = { _id: id };
-    return next(await userDeleteQuery(filters));
+    return next(await userDeleteQuery(res, filters));
 };
 
 const uploadProfilePicture = async (req, res, next) => {
-    const error_message = 'An error occurred while uploading profile picture';
+    const error_message = res.__('error_upload_profile_picture');
     return await uploadPPService.single('file')(req, res, async function (error) {
         if (error) {
             return next({ mes: error_message, error });
@@ -64,7 +64,7 @@ const uploadProfilePicture = async (req, res, next) => {
         const { file } = req;
         if (file) {
             const filters = { _id: req.session.user._id };
-            return await userFindQuery(req.query, { filters, limit: 1 })
+            return await userFindQuery(res, req.query, { filters, limit: 1 })
                 .then(async responseFindQuery => {
                     const { success, data } = responseFindQuery;
                     if (success) {
@@ -92,16 +92,16 @@ const uploadProfilePicture = async (req, res, next) => {
                     }
                 })
                 .then(async () => {
-                    return await userUpdateQuery(filters, {
+                    return await userUpdateQuery(res, filters, {
                         profilePictureLocation: file.location,
                         profilePictureKey: file.key,
                     }).then(responseUpdateQuery => {
                         let mes;
                         if (responseUpdateQuery.success) {
-                            mes = 'Profile picture uploaded successfully';
+                            mes = res.__('success_upload_profile_picture');
                         } else {
                             mes = error_message;
-                            userUpdateQuery(filters, {
+                            userUpdateQuery(res, filters, {
                                 $unset: { profilePictureLocation: '', profilePictureKey: '' },
                             });
                         }
@@ -112,14 +112,14 @@ const uploadProfilePicture = async (req, res, next) => {
                     });
                 });
         } else {
-            return next({ status: 400, success: false, mes: 'No file was uploaded' });
+            return next({ status: 400, success: false, mes: res.__('no_file_uploaded') });
         }
     });
 };
 
 const deleteProfilePicture = async (req, res, next) => {
     const filters = { _id: req.session.user._id };
-    return await userFindQuery(req.query, { filters, limit: 1 })
+    return await userFindQuery(res, req.query, { filters, limit: 1 })
         .then(async responseFindQuery => {
             const { success, data } = responseFindQuery;
             if (success) {
@@ -136,17 +136,27 @@ const deleteProfilePicture = async (req, res, next) => {
                             logger.info(
                                 `Delete profile picture for user: ${username}. Deleted profile picture with key: ${profilePictureKey}`
                             );
-                            return { success: true, mes: 'Profile picture deleted successfully' };
+                            return {
+                                success: true,
+                                mes: res.__('module_deleted', {
+                                    module: res.__('Profile') + ' ' + res.__('picture_of'),
+                                }),
+                            };
                         })
                         .catch(error => {
                             logger.error(
                                 `! ERROR !! Delete profile picture for user: ${username}. Error deleting profile picture with key: ${profilePictureKey}`,
                                 error
                             );
-                            return { success: false, mes: 'Error deleting profile picture' };
+                            return {
+                                success: false,
+                                mes: res.__('error_deleting_module', {
+                                    module: res.__('profile') + ' ' + res.__('picture_of'),
+                                }),
+                            };
                         });
                 } else {
-                    return { status: 400, success: false, mes: 'There is no profile picture to delete' };
+                    return { status: 400, success: false, mes: res.__('picture_is_not_exist') };
                 }
             } else {
                 return responseFindQuery;
@@ -154,12 +164,11 @@ const deleteProfilePicture = async (req, res, next) => {
         })
         .then(async responseDeleteProfilePicture => {
             if (responseDeleteProfilePicture.success) {
-                return await userUpdateQuery(filters, {
+                return await userUpdateQuery(res, filters, {
                     $unset: { profilePictureLocation: '', profilePictureKey: '' },
                 }).then(responseUpdateQuery => {
                     if (!responseUpdateQuery.success) {
-                        responseUpdateQuery.mes =
-                            'Profile picture is deleted but error occurred on updating user with default profile picture';
+                        responseUpdateQuery.mes = res.__('error_deleting_profile_picture');
                     }
                     return next(responseUpdateQuery);
                 });

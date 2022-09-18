@@ -8,17 +8,17 @@ import {
 import mongoose from 'mongoose';
 
 const listCards = async (req, res, next) => {
-    return next(await cardFindQuery(req.query, {}));
+    return next(await cardFindQuery(res, req.query, {}));
 };
 
 const listDetailedCards = async (req, res, next) => {
-    return next(await cardFindDetailedQuery(req.query, {}));
+    return next(await cardFindDetailedQuery(res, req.query, {}));
 };
 
 const getCard = async (req, res, next) => {
     const { id } = req.params;
     const filters = { _id: id };
-    return next(await cardFindQuery(req.query, { filters, limit: 1 }));
+    return next(await cardFindQuery(res, req.query, { filters, limit: 1 }));
 };
 
 const getDetailedCard = async (req, res, next) => {
@@ -29,10 +29,10 @@ const getDetailedCard = async (req, res, next) => {
             $match: { _id: mongoose.Types.ObjectId(id) },
         });
     } catch (error) {
-        return next({ mes: 'Error fetching cards', error });
+        return next({ mes: res.__('error_fetching_module', { module: res.__('cards') }), error });
     }
     const countFilters = { _id: id };
-    return await cardFindDetailedQuery(req.query, { filters, countFilters, limit: 1 })
+    return await cardFindDetailedQuery(res, req.query, { filters, countFilters, limit: 1 })
         .then(responseFindDetailedQuery => {
             let { success, data } = responseFindDetailedQuery;
             if (success) {
@@ -42,24 +42,24 @@ const getDetailedCard = async (req, res, next) => {
             return next(responseFindDetailedQuery);
         })
         .catch(error => {
-            return next({ mes: 'Error fetching card', error });
+            return next({ mes: res.__('error_fetching_module', { module: res.__('card') }), error });
         });
 };
 
 const createCard = async (req, res, next) => {
-    return next(await cardCreateQuery(req.body));
+    return next(await cardCreateQuery(res, req.body));
 };
 
 const updateCard = async (req, res, next) => {
     const { id } = req.params;
     const filters = { _id: id };
-    return next(await cardUpdateQuery(filters, req.body));
+    return next(await cardUpdateQuery(res, filters, req.body));
 };
 
 const deleteCard = async (req, res, next) => {
     const { id } = req.params;
     const filters = { _id: id };
-    return next(await cardDeleteQuery(filters));
+    return next(await cardDeleteQuery(res, filters));
 };
 
 export { listCards, listDetailedCards, createCard, getCard, updateCard, getDetailedCard, deleteCard };
