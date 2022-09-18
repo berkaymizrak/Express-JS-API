@@ -5,7 +5,6 @@ import { createLogger, format, transports } from 'winston';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 dotenv.config();
 
@@ -110,11 +109,22 @@ let defaultPPPath;
 if (env.development) {
     defaultPPPath = '/' + defaultPPKey;
 } else {
-    const command = new GetObjectCommand({ Bucket: bucketName, Key: defaultPPKey });
-    defaultPPPath = await getSignedUrl(s3Client, command).catch(error => {
-        logger.error(error);
-        return null;
-    });
+    defaultPPPath = await s3Client
+        .send(
+            new GetObjectCommand({
+                Bucket: bucketName,
+                Key: defaultPPKey,
+            })
+        )
+        .then(data => {
+            const url = 'https://' + data.Body.req.host + data.Body.req.path;
+            logger.info('Default profile picture path: ' + url);
+            return url;
+        })
+        .catch(error => {
+            logger.error(error);
+            return null;
+        });
 }
 
 export {
