@@ -1,10 +1,10 @@
 import multer from 'multer';
 import multerS3 from 'multer-s3';
-import { imageFilter } from './fileUploadFilters.js';
+import { fileFilter } from './fileUploadFilters.js';
 import { bucketName, s3Client } from '../config.js';
 
 const uploadPPService = multer({
-    imageFilter,
+    fileFilter,
     limits: {
         fileSize: 1024 * 1024 * 5, // 5 MB
         files: 1,

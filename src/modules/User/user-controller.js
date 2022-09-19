@@ -59,7 +59,7 @@ const uploadProfilePicture = async (req, res, next) => {
     const error_message = res.__('error_upload_profile_picture');
     return await uploadPPService.single('file')(req, res, async function (error) {
         if (error) {
-            return next({ mes: error_message, error });
+            return next({ status: 400, mes: error.message ? error.message : error_message, error });
         }
         const { file } = req;
         if (file) {

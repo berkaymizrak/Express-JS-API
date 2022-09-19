@@ -23,6 +23,7 @@
   "module_retrieved_successfully": "{{module}} retrieved successfully",
   "module_created": "{{module}} created successfully",
   "module_updated": "{{module}} updated successfully",
+  "module_deleted": "{{module}} deleted successfully",
   "no_module_found": "No {{module}} found",
   "module_not_found": "{{module}} not found",
   "error_fetching_module": "Error fetching {{module}}",
