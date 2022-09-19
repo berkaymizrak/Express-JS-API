@@ -168,9 +168,9 @@ const deleteProfilePicture = async (req, res, next) => {
                     $unset: { profilePictureLocation: '', profilePictureKey: '' },
                 }).then(responseUpdateQuery => {
                     if (!responseUpdateQuery.success) {
-                        responseUpdateQuery.mes = res.__('error_deleting_profile_picture');
+                        responseDeleteProfilePicture.mes = res.__('error_deleting_profile_picture');
                     }
-                    return next(responseUpdateQuery);
+                    return next(responseDeleteProfilePicture);
                 });
             } else {
                 return next(responseDeleteProfilePicture);
