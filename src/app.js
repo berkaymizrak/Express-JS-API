@@ -27,7 +27,19 @@ const runServer = async () => {
         app.set('trust proxy', 1); // trust first proxy
         sessionOptions.cookie.secure = true; // serve secure cookies
     }
-    app.use(helmet());
+    app.use(
+        helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'"],
+                    scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+                    styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+                    baseUri: ["'self'"],
+                    fontSrc: ["'self'", 'https:', 'data:'],
+                },
+            },
+        })
+    );
     app.disable('x-powered-by');
 
     app.use(session(sessionOptions));

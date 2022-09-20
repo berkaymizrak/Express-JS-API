@@ -24,7 +24,17 @@ const runServer = async () => {
     sessionOptions.cookie.secure = true; // serve secure cookies
   }
 
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+        baseUri: ["'self'"],
+        fontSrc: ["'self'", 'https:', 'data:']
+      }
+    }
+  }));
   app.disable('x-powered-by');
   app.use(session(sessionOptions)); // DB connection is done in admin-router.js > admin-config.js
 
