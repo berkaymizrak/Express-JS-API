@@ -123,7 +123,7 @@ if (env.development) {
             return url;
         })
         .catch(error => {
-            logger.error(error);
+            logger.error('ERROR on getting default profile picture path! ', error);
             return null;
         });
 }
