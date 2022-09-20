@@ -1,9 +1,8 @@
 import AdminJS from 'adminjs';
 import AdminJSMongoose from '@adminjs/mongoose';
 import dbConnection from '../../services/db.js';
-import { bucketName, env, s3Client } from '../../config.js';
+import { bucketName, env, logger, s3Client } from '../../config.js';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 AdminJS.registerAdapter(AdminJSMongoose);
 
@@ -38,8 +37,21 @@ const logoKey = 'static/images/logo.svg';
 if (env.development) {
     adminJs.options.branding.logo = '/' + logoKey;
 } else {
-    const command = new GetObjectCommand({ Bucket: bucketName, Key: logoKey });
-    adminJs.options.branding.logo = await getSignedUrl(s3Client, command);
+    s3Client
+        .send(
+            new GetObjectCommand({
+                Bucket: bucketName,
+                Key: logoKey,
+            })
+        )
+        .then(data => {
+            const url = 'https://' + data.Body.req.host + data.Body.req.path;
+            logger.info('Default profile picture path: ' + url);
+            adminJs.options.branding.logo = url;
+        })
+        .catch(error => {
+            logger.error('ERROR on getting admin logo path! ', error);
+        });
 }
 
 export default adminJs;
