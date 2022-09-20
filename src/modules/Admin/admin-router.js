@@ -4,6 +4,7 @@ import adminAuth from '../../middlewares/admin-auth.js';
 import { sessionOptions, cookiePassword, logger } from '../../config.js';
 import adminJs from './admin-config.js';
 import isEmailValid from '../../services/emailValidator.js';
+import i18n from 'i18n';
 
 const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
     adminJs,
@@ -18,25 +19,27 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
                         filters.username = usernameOrEmail;
                     }
 
-                    return await userFindQuery(res, {}, { filters, limit: 1, projection: {} }).then(
-                        async responseUserFindQuery => {
-                            const { data } = responseUserFindQuery;
-                            if (
-                                responseUserFindQuery.success &&
-                                data &&
-                                data.length > 0 &&
-                                data[0].schema.methods.isAdmin(data[0].role)
-                            ) {
-                                const user = data[0];
+                    return await userFindQuery(
+                        { __: i18n.__ },
+                        {},
+                        { filters, limit: 1, projection: {} }
+                    ).then(async responseUserFindQuery => {
+                        const { data } = responseUserFindQuery;
+                        if (
+                            responseUserFindQuery.success &&
+                            data &&
+                            data.length > 0 &&
+                            data[0].schema.methods.isAdmin(data[0].role)
+                        ) {
+                            const user = data[0];
 
-                                return await user.comparePassword(password).then(async isMatch => {
-                                    if (isMatch.success) {
-                                        return user;
-                                    }
-                                });
-                            }
+                            return await user.comparePassword(password).then(async isMatch => {
+                                if (isMatch.success) {
+                                    return user;
+                                }
+                            });
                         }
-                    );
+                    });
                 })
                 .catch(error => {
                     logger.error('Admin login error:', error);
