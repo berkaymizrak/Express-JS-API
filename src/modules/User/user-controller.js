@@ -70,7 +70,7 @@ const uploadProfilePicture = async (req, res, next) => {
                     if (success) {
                         const { username, profilePictureKey } = data[0];
                         if (!data[0].schema.methods.isProfilePictureDefault(profilePictureKey)) {
-                            await s3Client
+                            s3Client
                                 .send(
                                     new DeleteObjectCommand({
                                         Bucket: bucketName,
