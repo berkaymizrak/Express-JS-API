@@ -1,0 +1,107 @@
+service: test
+
+plugins:
+  - serverless-offline
+  - serverless-prune-plugin
+  - serverless-plugin-common-excludes
+  - serverless-domain-manager
+
+custom:
+  customDomain:
+    domainName: test
+    stage: ${opt:stage}
+    hostedZonePrivate: true
+    certificateName: 'test.com'
+    createRoute53Record: true
+    endpointType: 'regional'
+    securityPolicy: tls_1_2
+    apiType: http
+    autoDomain: true
+  prune:
+    automatic: true
+    includeLayers: true
+    number: 10
+
+package:
+  individually: true
+  patterns:
+    - dist/**
+    - "!node_modules/@carbon/icons-react/es/**"
+    - "!node_modules/@carbon/icons-react/next/**"
+    - "!node_modules/@carbon/telemetry/**"
+    - "!node_modules/typescript/**"
+    - "!node_modules/prettier/**"
+    - "!node_modules/serverless/**"
+    - "!node_modules/@serverless"
+    - "!node_modules/@adminjs/design-system/bundle.development.js"
+    - "!node_module/nodemon/**"
+    - "!node_module/ts-node/**"
+    - "!terraform/**"
+    - "!.serverless/**"
+    - "!src/**"
+    - "!.vscode/**"
+    - "!.gitignore"
+    - "!nodemon.json"
+    - "!openapi-spec.yaml"
+    - "!package-lock.json"
+    - "!README.md"
+    - "!serverless.yml"
+    - "!tsconfig.json"
+    - "!yarn.lock"
+    - "!.swcrc"
+
+
+provider:
+  name: aws
+  versionFunctions: true
+  stage: ${opt:stage}
+  runtime: nodejs16.x
+  logRetentionInDays: 90
+  apiGateway:
+    minimumCompressionSize: 1024
+    usagePlan:
+      throttle:
+        burstLimit: 500
+        rateLimit: 200
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+  deploymentBucket:
+    name: "deploy-bucket"
+    maxPreviousDeploymentArtifacts: 5
+    serverSideEncryption: AES256
+    blockPublicAccess: true
+    tags:
+      Application: "test"
+  tags:
+    Application: "test"
+  stackTags:
+    Application: "test"
+  tracing:
+    apiGateway: true
+    lambda: true
+  logs:
+    restApi: true
+
+functions:
+  main: # The name of the lambda function
+    name: test-${opt:stage}-api
+    timeout: 15
+    memorySize: 512
+    tags:
+      Application: "test"
+    environment:
+      APP_NAME: "test-api"
+      ADMIN_JS_TMP_DIR: "/tmp/.adminjs"
+      NODE_ENV: "production"
+      DATABASE_ENDPOINT: "https://test-endpoint"
+      DATABASE_NAME: "db-name"
+      DATABASE_PORT: "3306"
+      DATABASE_USER: "db-username"
+      DATABASE_PASSWORD: "db-password"
+    # The module 'handler' is exported in the file 'src/lambda'
+    handler: dist/index.handler
+    events:
+      - httpApi: '*'
