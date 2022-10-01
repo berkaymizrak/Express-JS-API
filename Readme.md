@@ -9,6 +9,7 @@
 * * [MongoDB](https://www.mongodb.com/)
 * * [JWT](https://jwt.io/)
 * * [Mongoose](https://mongoosejs.com/)
+* * [AdminJS](https://adminjs.co/)
 * Token authentication is used to authenticate users. A middleware is used to verify the token.
 * All models are created under the /modules folder as micro structuring and can be modified as needed easily.
 * A router-bundler is the middleware, used to bundle all the routes.
