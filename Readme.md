@@ -39,6 +39,6 @@ yarn start:prod
 Postman API documentation is created and can be accessible by visiting public urls.
 
 - **Visit Online Documentation:** https://documenter.getpostman.com/view/11424728/VUxKTUqv
-- **Send Requests Online:** https://www.postman.com/berkaymizrak/workspace/express-js-api/overview
+- **View Public Workspace:** https://www.postman.com/cloudy-meadow-858707/workspace/express-js-api/collection/11424728-39177b66-79ac-495c-9d43-9000e6561945?action=share&creator=11424728
 
 **Note:** Be sure you selected the environment *Express JS API Env Local* from top right corner.
