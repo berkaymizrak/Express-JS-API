@@ -10,9 +10,9 @@ const tokenFindQuery = async (res, queryParams, { filters, projection, sorting, 
 
     return await tokens
         .find(filters, projection)
+        .sort(sorting)
         .limit(limit)
         .skip(skip)
-        .sort(sorting)
         .then(async data => {
             return await tokens.count(filters).then(totalCount => {
                 return {

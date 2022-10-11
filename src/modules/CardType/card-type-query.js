@@ -17,9 +17,9 @@ const cardTypesFindQuery = async (res, queryParams, { filters, projection, sorti
 
     return await cardTypes
         .find(filters, projection)
+        .sort(sorting)
         .limit(limit)
         .skip(skip)
-        .sort(sorting)
         .then(async data => {
             return await cardTypes.count(filters).then(totalCount => {
                 return {

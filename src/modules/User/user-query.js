@@ -17,9 +17,9 @@ const userFindQuery = async (res, queryParams, { filters, projection, sorting, l
 
     return await users
         .find(filters, projection)
+        .sort(sorting)
         .limit(limit)
         .skip(skip)
-        .sort(sorting)
         .then(async data => {
             return await users.count(filters).then(totalCount => {
                 return {

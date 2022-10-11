@@ -17,9 +17,9 @@ const cardFindQuery = async (res, queryParams, { filters, projection, sorting, l
 
     return await cards
         .find(filters, projection)
+        .sort(sorting)
         .limit(limit)
         .skip(skip)
-        .sort(sorting)
         .then(async data => {
             return await cards.count(filters).then(totalCount => {
                 return {
@@ -67,6 +67,7 @@ const cardFindDetailedQuery = async (
     if (!limit) limit = queryParams.limit || resultLimit;
     if (!skip) skip = queryParams.skip || 0;
 
+    // TODO: move 'sorting' into aggregate to first sort then limit the results
     return await cards
         .aggregate([
             ...filters,
